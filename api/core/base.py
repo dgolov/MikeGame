@@ -1,2 +1,2 @@
-from game.models import Expense, Income, Currency, Account, Category
+from game.models import Player
 from core.engine import Base
