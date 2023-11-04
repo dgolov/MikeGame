@@ -41,6 +41,6 @@ logging.config.dictConfig(log_config)
 logger_mode = 'console' if int(os.environ.get('DEBUG', True)) else 'log'
 logger = logging.getLogger(logger_mode)
 
-# SQLALCHEMY_DATABASE_URL = os.environ.get('DB_URL')
+SQLALCHEMY_DATABASE_URL = os.environ.get('DB_URL')
 
-# SECRET = os.environ.get('SECRET')
+SECRET = os.environ.get('SECRET')
