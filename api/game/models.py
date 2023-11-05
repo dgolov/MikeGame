@@ -3,6 +3,34 @@ from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
 
+home_player = Table(
+    "home_player", Base.metadata,
+    Column("home_id", ForeignKey("home.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
+
+
+skill_player = Table(
+    "skill_player", Base.metadata,
+    Column("skill_id", ForeignKey("skill.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
+
+
+transport_player = Table(
+    "transport_player", Base.metadata,
+    Column("transport_id", ForeignKey("transport.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
+
+
+business_player = Table(
+    "business_player", Base.metadata,
+    Column("business_id", ForeignKey("business.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
+
+
 class Player(Base):
     __tablename__ = "player"
 
@@ -15,6 +43,34 @@ class Player(Base):
     age = Column(Integer, nullable=False)
     authority = Column(Integer, nullable=False)
     day = Column(Integer, nullable=False)
+    home_list = relationship(
+        "Home",
+        secondary=home_player,
+        back_populates="players",
+        lazy="selectin",
+        join_depth=2
+    )
+    skills = relationship(
+        "Skill",
+        secondary=skill_player,
+        back_populates="players",
+        lazy="selectin",
+        join_depth=2
+    )
+    transport_list = relationship(
+        "Transport",
+        secondary=transport_player,
+        back_populates="players",
+        lazy="selectin",
+        join_depth=2
+    )
+    business_list = relationship(
+        "Business",
+        secondary=business_player,
+        back_populates="players",
+        lazy="selectin",
+        join_depth=2
+    )
 
 
 class Currency(Base):
@@ -37,13 +93,6 @@ class Balance(Base):
     updated_at = Column(DateTime)
 
 
-home_player = Table(
-    "home_player", Base.metadata,
-    Column("home_id", ForeignKey("home.id", ondelete="CASCADE"), primary_key=True, index=True),
-    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
-)
-
-
 class Home(Base):
     __tablename__ = "home"
 
@@ -52,26 +101,12 @@ class Home(Base):
     price = Column(Integer, nullable=False)
 
 
-skill_player = Table(
-    "skill_player", Base.metadata,
-    Column("skill_id", ForeignKey("skill.id", ondelete="CASCADE"), primary_key=True, index=True),
-    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
-)
-
-
 class Skill(Base):
     __tablename__ = "skill"
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
     price = Column(Integer, nullable=False)
-
-
-transport_player = Table(
-    "transport_player", Base.metadata,
-    Column("transport_id", ForeignKey("transport.id", ondelete="CASCADE"), primary_key=True, index=True),
-    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
-)
 
 
 class Transport(Base):
