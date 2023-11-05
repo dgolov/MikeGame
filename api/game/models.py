@@ -1,6 +1,5 @@
 from core.engine import Base
-from datetime import datetime
-from sqlalchemy import Column, String, Integer, DateTime, Float, ForeignKey, Boolean
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
 
@@ -15,6 +14,7 @@ class Player(Base):
     level = Column(Integer, nullable=False)
     age = Column(Integer, nullable=False)
     authority = Column(Integer, nullable=False)
+    day = Column(Integer, nullable=False)
 
 
 class Currency(Base):
@@ -37,6 +37,13 @@ class Balance(Base):
     updated_at = Column(DateTime)
 
 
+home_player = Table(
+    "home_player", Base.metadata,
+    Column("home_id", ForeignKey("home.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
+
+
 class Home(Base):
     __tablename__ = "home"
 
@@ -45,12 +52,26 @@ class Home(Base):
     price = Column(Integer, nullable=False)
 
 
+skill_player = Table(
+    "skill_player", Base.metadata,
+    Column("skill_id", ForeignKey("skill.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
+
+
 class Skill(Base):
     __tablename__ = "skill"
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
     price = Column(Integer, nullable=False)
+
+
+transport_player = Table(
+    "transport_player", Base.metadata,
+    Column("transport_id", ForeignKey("transport.id", ondelete="CASCADE"), primary_key=True, index=True),
+    Column("player_id", ForeignKey("player.id", ondelete="CASCADE"), primary_key=True)
+)
 
 
 class Transport(Base):
