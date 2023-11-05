@@ -7,7 +7,7 @@ class Player(Base):
     __tablename__ = "player"
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
-    # user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     hunger = Column(Integer, nullable=False)
     rest = Column(Integer, nullable=False)
     health = Column(Integer, nullable=False)
