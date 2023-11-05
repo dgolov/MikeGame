@@ -10,7 +10,7 @@ routes = APIRouter()
 routes.include_router(
     game_endpoints.router,
     prefix="/api",
-    tags=["finance"]
+    tags=["api"]
 )
 
 routes.include_router(
