@@ -28,12 +28,12 @@ class Player(Game):
         super(Game, self).__init__()
 
     async def add_player(self, user_id: int, session):
-        logger.info(
-            f"[Logic.Player] Add new player by user id - {user_id}"
-        )
         self.default_player_data["user_id"] = user_id
-        await repository_entity.PlayerEntity(session=session).create(
+        player_id = await repository_entity.PlayerEntity(session=session).create(
             data=self.default_player_data
+        )
+        logger.info(
+            f"[Logic.Player] Add new player (id - {player_id}) by user id - {user_id}"
         )
 
 
