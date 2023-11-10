@@ -32,8 +32,6 @@ async def add_player(
 ) -> JSONResponse:
     """ Add player
     """
-    print(user)
-    print(user.players)
     if len(user.players):
         error_message = f"Player already exists for user - {user.email}"
         logger.error(error_message)
