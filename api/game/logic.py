@@ -1,3 +1,8 @@
+from core import repository_entity
+from core.engine import get_async_session
+from config import logger
+
+
 class Game:
     def __init__(self):
         ...
@@ -11,10 +16,26 @@ class Game:
 
 class Player(Game):
     def __init__(self):
+        self.default_player_data = {
+            "hunger": 100,
+            "rest": 100,
+            "health": 100,
+            "level": 1,
+            "age": 18,
+            "authority": 0,
+            "day": 1,
+            "user_id": None
+        }
         super(Game, self).__init__()
 
-    def add_player(self):
-        ...
+    async def add_player(self, user_id: int, session):
+        logger.info(
+            f"[Logic.Player] Add new player by user id - {user_id}"
+        )
+        self.default_player_data["user_id"] = user_id
+        await repository_entity.PlayerEntity(session=session).create(
+            data=self.default_player_data
+        )
 
 
 class Home(Game):
