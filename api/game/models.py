@@ -68,12 +68,18 @@ class Player(Base):
         join_depth=2
     )
 
+    def __str__(self):
+        return "Mike"
+
 
 class Currency(Base):
     __tablename__ = "currency"
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Balance(Base):
@@ -88,6 +94,9 @@ class Balance(Base):
     amount = Column(Integer, nullable=False)
     updated_at = Column(DateTime)
 
+    def __str__(self):
+        return self.name
+
 
 class Home(Base):
     __tablename__ = "home"
@@ -96,6 +105,9 @@ class Home(Base):
     name = Column(String, nullable=False, index=True)
     price = Column(Integer, nullable=False)
 
+    def __str__(self):
+        return self.name
+
 
 class Skill(Base):
     __tablename__ = "skill"
@@ -103,6 +115,9 @@ class Skill(Base):
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
     price = Column(Integer, nullable=False)
+
+    def __str__(self):
+        return self.name
 
 
 class Transport(Base):
@@ -113,6 +128,9 @@ class Transport(Base):
     price = Column(Integer, nullable=False)
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
+
+    def __str__(self):
+        return self.name
 
 
 class StreetAction(Base):
@@ -136,6 +154,9 @@ class StreetAction(Base):
     health_harm_min = Column(Integer)
     health_harm_max = Column(Integer)
 
+    def __str__(self):
+        return self.name
+
 
 class Work(Base):
     __tablename__ = "work"
@@ -158,6 +179,9 @@ class Work(Base):
     health_harm_min = Column(Integer)
     health_harm_max = Column(Integer)
 
+    def __str__(self):
+        return self.name
+
 
 class Food(Base):
     __tablename__ = "food"
@@ -172,6 +196,9 @@ class Food(Base):
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
 
+    def __str__(self):
+        return self.name
+
 
 class Health(Base):
     __tablename__ = "health"
@@ -185,6 +212,9 @@ class Health(Base):
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+
+    def __str__(self):
+        return self.name
 
 
 class Leisure(Base):
@@ -201,6 +231,9 @@ class Leisure(Base):
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+
+    def __str__(self):
+        return self.name
 
 
 class Business(Base):
@@ -220,3 +253,6 @@ class Business(Base):
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
     min_authority = Column(Integer)
+
+    def __str__(self):
+        return self.name
