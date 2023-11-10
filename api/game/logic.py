@@ -1,5 +1,4 @@
 from core import repository_entity
-from core.engine import get_async_session
 from config import logger
 
 

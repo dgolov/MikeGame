@@ -4,8 +4,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from routes import routes
 
-import logging
-
 
 app = FastAPI()
 

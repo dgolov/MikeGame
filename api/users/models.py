@@ -1,4 +1,4 @@
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.orm import relationship
 
 from core.engine import Base, get_async_session
 from fastapi import Depends

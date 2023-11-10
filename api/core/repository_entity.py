@@ -1,8 +1,5 @@
-from sqlalchemy import select, insert, or_
+from sqlalchemy import select, insert
 from game import models, schemas
-from datetime import datetime
-from sqlalchemy.sql import func
-from typing import Union
 
 
 class Base:
