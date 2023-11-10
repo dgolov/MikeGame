@@ -46,28 +46,24 @@ class Player(Base):
     home_list = relationship(
         "Home",
         secondary=home_player,
-        back_populates="players",
         lazy="selectin",
         join_depth=2
     )
     skills = relationship(
         "Skill",
         secondary=skill_player,
-        back_populates="players",
         lazy="selectin",
         join_depth=2
     )
     transport_list = relationship(
         "Transport",
         secondary=transport_player,
-        back_populates="players",
         lazy="selectin",
         join_depth=2
     )
     business_list = relationship(
         "Business",
         secondary=business_player,
-        back_populates="players",
         lazy="selectin",
         join_depth=2
     )
