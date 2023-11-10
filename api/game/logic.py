@@ -9,6 +9,14 @@ class Game:
         ...
 
 
+class Player(Game):
+    def __init__(self):
+        super(Game, self).__init__()
+
+    def add_player(self):
+        ...
+
+
 class Home(Game):
     def __init__(self):
         super(Home, self).__init__()
