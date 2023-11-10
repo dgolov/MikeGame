@@ -1,4 +1,7 @@
+import asyncio
+
 from config import logger
+from core.repository_entity import init_db
 from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -10,6 +13,9 @@ app = FastAPI()
 
 app.include_router(routes)
 logger.debug("Start application")
+
+loop = asyncio.get_running_loop()
+loop.create_task(init_db())
 
 
 @app.middleware("http")
