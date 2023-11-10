@@ -31,7 +31,8 @@ class Base:
         return len(result)
 
     async def _add(self, obj, data):
-        data = data.dict()
+        if not isinstance(data, dict):
+            data = data.dict()
         query = insert(obj).values(**data)
         await self.session.execute(query)
         await self.session.commit()
@@ -56,7 +57,15 @@ class Base:
 
 
 class PlayerEntity(Base):
-    ...
+    model = models.Player
+
+    async def get_player_by_id(self, player_id: int) -> models.Player:
+        query = select(self.model).filter(self.model.id == player_id)
+        result = await self.session.execute(query)
+        return self._first(result)
+
+    async def create(self, data: schemas.CreatePlayer | dict) -> dict:
+        return await self._add(obj=self.model, data=data)
 
 
 class CurrencyEntity(Base):
