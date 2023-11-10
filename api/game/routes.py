@@ -1,9 +1,11 @@
 import asyncio
 
+from core.engine import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from typing import Union, List
+from game import logic
 
 
 router = APIRouter()
@@ -21,6 +23,15 @@ async def get_play_info() -> dict:
     """ Info endpoint
     """
     return {"test": "ok"}
+
+
+@router.post("/player")
+async def add_player(
+        user_id: int,
+        session: AsyncSession = Depends(get_async_session)
+):
+    player = logic.Player()
+    await player.add_player(user_id=user_id, session=session)
 
 
 @router.get("/skills")
