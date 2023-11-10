@@ -1,3 +1,5 @@
+from sqlalchemy.orm import relationship
+
 from core.engine import Base, get_async_session
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
@@ -14,6 +16,7 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     is_active: bool = Column(Boolean, default=True, nullable=False)
     is_superuser: bool = Column(Boolean, default=False, nullable=False)
     is_verified: bool = Column(Boolean, default=False, nullable=False)
+    players = relationship("Player", lazy="selectin", join_depth=2)
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):

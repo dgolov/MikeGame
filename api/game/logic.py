@@ -1,3 +1,7 @@
+from core import repository_entity
+from config import logger
+
+
 class Game:
     def __init__(self):
         ...
@@ -7,6 +11,30 @@ class Game:
 
     def _get_random_value(self, min_value, max_value):
         ...
+
+
+class Player(Game):
+    def __init__(self):
+        self.default_player_data = {
+            "hunger": 100,
+            "rest": 100,
+            "health": 100,
+            "level": 1,
+            "age": 18,
+            "authority": 0,
+            "day": 1,
+            "user_id": None
+        }
+        super(Game, self).__init__()
+
+    async def add_player(self, user_id: int, session):
+        self.default_player_data["user_id"] = user_id
+        player_id = await repository_entity.PlayerEntity(session=session).create(
+            data=self.default_player_data
+        )
+        logger.info(
+            f"[Logic.Player] Add new player (id - {player_id}) by user id - {user_id}"
+        )
 
 
 class Home(Game):
