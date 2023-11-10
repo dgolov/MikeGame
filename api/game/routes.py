@@ -1,11 +1,14 @@
 import asyncio
 
+from config import logger
 from core.engine import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from typing import Union, List
 from game import logic
+from users.models import User
+from users.utils import current_user
 
 
 router = APIRouter()
@@ -27,11 +30,28 @@ async def get_play_info() -> dict:
 
 @router.post("/player")
 async def add_player(
-        user_id: int,
+        user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-):
+) -> JSONResponse:
+    """ Add player
+    """
+    print(user)
+    print(user.players)
+    if len(user.players):
+        error_message = f"Player already exists for user - {user.email}"
+        logger.error(error_message)
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": error_message}
+        )
+
     player = logic.Player()
-    await player.add_player(user_id=user_id, session=session)
+    await player.add_player(user_id=user.id, session=session)
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"message": "Created"}
+    )
 
 
 @router.get("/skills")
