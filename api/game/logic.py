@@ -28,7 +28,7 @@ class Player(Game):
             "day": 1,
             "user_id": None
         }
-        super(Game, self).__init__(session, user)
+        super(Player, self).__init__(session, user)
 
     async def add_player(self):
         self.default_player_data["user_id"] = self.user.id
