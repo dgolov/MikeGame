@@ -158,7 +158,8 @@ class UpdateTransport(TransportBase):
 class StreetActionBase(BaseModel, HarmSchemaMixin):
     name: str
     description: str | None
-    income: int
+    income_min: int
+    income_max: int
     currency_id: int
     transport_id: int | None
     home_id: int | None
@@ -183,7 +184,8 @@ class UpdateStreetAction(StreetActionBase):
 class WorkBase(BaseModel, HarmSchemaMixin):
     name: str
     description: str | None
-    income: int
+    income_min: int
+    income_max: int
     currency_id: int
     transport_id: int
     home_id: int
