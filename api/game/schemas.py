@@ -30,7 +30,7 @@ class PlayerBase(BaseModel):
     day: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class PlayerSchema(PlayerBase):
@@ -50,7 +50,7 @@ class CurrencyBase(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CurrencySchema(CurrencyBase):
@@ -72,7 +72,7 @@ class BalanceBase(BaseModel):
     amount: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BalanceSchema(BalanceBase):
@@ -93,7 +93,7 @@ class HomeBase(BaseModel):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class HomeSchema(HomeBase):
@@ -113,7 +113,7 @@ class SkillBase(BaseModel):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SkillSchema(SkillBase):
@@ -134,7 +134,7 @@ class TransportBase(BaseModel):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TransportSchema(TransportBase):
@@ -158,7 +158,7 @@ class StreetActionBase(BaseModel, HarmSchemaMixin):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class StreetActionSchema(StreetActionBase):
@@ -182,7 +182,7 @@ class WorkBase(BaseModel, HarmSchemaMixin):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class WorkSchema(WorkBase):
@@ -202,7 +202,7 @@ class FoodBase(BaseModel, BenefitSchemaMixin):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FoodSchema(FoodBase):
@@ -222,7 +222,7 @@ class HealthBase(BaseModel, BenefitSchemaMixin):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class HealthSchema(HealthBase):
@@ -243,7 +243,7 @@ class LeisureBase(BaseModel, BenefitSchemaMixin):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class LeisureSchema(LeisureBase):
@@ -270,7 +270,7 @@ class BusinessBase(BaseModel):
     min_authority: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BusinessSchema(BusinessBase):
