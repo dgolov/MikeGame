@@ -93,6 +93,7 @@ class UpdatePlayer(PlayerBase):
 
 class HomeBase(BaseModel):
     name: str
+    description: str | None
     price: int
 
     class Config:
@@ -114,6 +115,7 @@ class UpdateHome(HomeBase):
 class SkillBase(BaseModel):
     name: str
     price: int
+    description: str | None
 
     class Config:
         from_attributes = True
@@ -133,6 +135,7 @@ class UpdateSkill(SkillBase):
 
 class TransportBase(BaseModel):
     name: str
+    description: str | None
     price: int
     skill_id: int
 
@@ -154,6 +157,7 @@ class UpdateTransport(TransportBase):
 
 class StreetActionBase(BaseModel, HarmSchemaMixin):
     name: str
+    description: str | None
     income: int
     currency_id: int
     transport_id: int
@@ -178,6 +182,7 @@ class UpdateStreetAction(StreetActionBase):
 
 class WorkBase(BaseModel, HarmSchemaMixin):
     name: str
+    description: str | None
     income: int
     currency_id: int
     transport_id: int
@@ -202,6 +207,7 @@ class UpdateWork(WorkBase):
 
 class FoodBase(BaseModel, BenefitSchemaMixin):
     name: str
+    description: str | None
     price: int
 
     class Config:
@@ -222,6 +228,7 @@ class UpdateFood(FoodBase):
 
 class HealthBase(BaseModel, BenefitSchemaMixin):
     name: str
+    description: str | None
     price: int
 
     class Config:
@@ -242,6 +249,7 @@ class UpdateHealth(HealthBase):
 
 class LeisureBase(BaseModel, BenefitSchemaMixin):
     name: str
+    description: str | None
     price: int
     skill_id: int
 
@@ -263,6 +271,7 @@ class UpdateLeisure(LeisureBase):
 
 class BusinessBase(BaseModel):
     name: str
+    description: str | None
     price: int
     income: int
     income_period: int
