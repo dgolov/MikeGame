@@ -39,6 +39,17 @@ class Player(Game):
             f"[Logic.Player] Add new player (id - {player_id}) by user id - {self.user.id}"
         )
 
+    async def get_info(self) -> models.Player | None:
+        try:
+            player = self.user.players[-1]
+        except IndexError:
+            logger.error(f"Player is not exist for user - {self.user.email}")
+            return
+
+        return await repository_entity.PlayerEntity(session=self.session).get_player_by_id(
+            player_id=player.id
+        )
+
 
 class Home(Game):
     def __init__(self, session, user: User):
