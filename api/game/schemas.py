@@ -181,6 +181,10 @@ class UpdateStreetAction(StreetActionBase):
     pass
 
 
+class PerformStreetActionSchema(BaseModel):
+    id: int
+
+
 class WorkBase(BaseModel, HarmSchemaMixin):
     name: str
     description: str | None
