@@ -160,9 +160,9 @@ class StreetActionBase(BaseModel, HarmSchemaMixin):
     description: str | None
     income: int
     currency_id: int
-    transport_id: int
-    home_id: int
-    skill_id: int
+    transport_id: int | None
+    home_id: int | None
+    skill_id: int | None
 
     class Config:
         from_attributes = True
