@@ -1,9 +1,12 @@
 from core import repository_entity
 from config import logger
 from game import models
+from game.exceptions import NotFoundException, PlayerException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from users.models import User
+
+import random
 
 
 class Game:
@@ -11,11 +14,67 @@ class Game:
         self.session = session
         self.user = user
 
-    def next_day(self) -> None:
-        ...
+    def next_day(self, player: models.Player) -> None:
+        logger.debug(f"{self.user.email} Set next day")
+        player.day += 1
+        self.session.add(player)
 
-    def _get_random_value(self, min_value: int, max_value: int) -> int:
-        ...
+    def get_player(self) -> models.Player | None:
+        try:
+            return self.user.players[-1]
+        except IndexError:
+            logger.error(f"Player is not exist for user - {self.user.email}")
+
+    def set_player_harm(
+            self,
+            player: models.Player,
+            harm_action: models.StreetAction | models.Work
+    ) -> None:
+        """ Set harm for player
+        :param player: item player
+        :param harm_action: harm action
+        :return:
+        """
+        hunger_harm = self._get_random_value(
+            min_value=harm_action.hunger_harm_min,
+            max_value=harm_action.hunger_harm_max
+        )
+        rest_harm = self._get_random_value(
+            min_value=harm_action.rest_harm_min,
+            max_value=harm_action.rest_harm_max
+        )
+        health_harm = self._get_random_value(
+            min_value=harm_action.health_harm_min,
+            max_value=harm_action.health_harm_max
+        )
+
+        player.hunger -= hunger_harm
+        player.rest -= rest_harm
+        player.health -= health_harm
+        self.session.add(player)
+
+    def update_balance(
+            self,
+            player: models.Player,
+            action: models.StreetAction | models.Work
+    ) -> None:
+        """ Updated player balance after work or street action
+        :param player: item player
+        :param action: work or street action
+        :return:
+        """
+        income = self._get_random_value(
+            min_value=action.income_min,
+            max_value=action.income_max
+        )
+        for balance in player.balances:
+            if balance.currency.id == action.currency_id:
+                balance.amount += income
+                self.session.add(balance)
+
+    @staticmethod
+    def _get_random_value(min_value: int, max_value: int) -> int:
+        return random.randint(min_value, max_value)
 
 
 class Player(Game):
@@ -43,15 +102,7 @@ class Player(Game):
         )
 
     async def get_info(self) -> models.Player | None:
-        try:
-            player = self.user.players[-1]
-        except IndexError:
-            logger.error(f"Player is not exist for user - {self.user.email}")
-            return
-
-        return await self.repository.get_player_by_id(
-            player_id=player.id
-        )
+        return self.get_player()
 
 
 class Home(Game):
@@ -95,8 +146,23 @@ class StreetAction(Game):
         super(StreetAction, self).__init__(session, user)
         self.repository = repository_entity.StreetActionEntity(session=session)
 
-    def run(self) -> None:
-        ...
+    async def get_action(self, action_id) -> models.StreetAction | None:
+        return await self.repository.get_street_action_by_id(street_action_id=action_id)
+
+    async def run(self, action_id: int) -> None:
+        logger.debug(f"{self.user.email} Perform street action id {action_id}")
+        action = await self.get_action(action_id=action_id)
+        player = self.get_player()
+
+        if not action:
+            raise NotFoundException(f"Action is not found")
+        if not player:
+            raise PlayerException(f"Player is not found")
+
+        self.set_player_harm(player=player, harm_action=action)
+        self.update_balance(player=player, action=action)
+        self.next_day(player=player)
+        await self.session.commit()
 
     async def get_street_action_list(self) -> List[models.StreetAction]:
         return await self.repository.get_street_action_list()

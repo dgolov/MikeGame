@@ -3,6 +3,7 @@ from core.engine import get_async_session
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from game import logic, schemas
+from game.exceptions import NotFoundException, PlayerException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from users.models import User
@@ -148,12 +149,29 @@ async def get_street_actions_list(
 
 @router.post("/street")
 async def perform_street_action(
+        data: schemas.PerformStreetActionSchema,
         user: User = Depends(current_user),
-        session: AsyncSession = Depends(get_async_session)
-) -> dict:
+        session: AsyncSession = Depends(get_async_session),
+) -> JSONResponse:
     """ Perform street action by player id endpoint
     """
-    return {"test": "ok"}
+    street_logic = logic.StreetAction(session=session, user=user)
+    try:
+        await street_logic.run(action_id=data.id)
+    except NotFoundException:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Action not found"}
+        )
+    except PlayerException:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Player not found"}
+        )
+    return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Ok"}
+        )
 
 
 @router.get("/work", response_model=List[schemas.WorkSchema])
