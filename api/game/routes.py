@@ -19,7 +19,10 @@ async def test() -> dict:
 
 
 @router.get("/info")
-async def get_play_info() -> dict:
+async def get_play_info(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Info endpoint
     """
     return {"test": "ok"}
@@ -50,126 +53,180 @@ async def add_player(
 
 
 @router.get("/skills")
-async def get_skills_list() -> dict:
+async def get_skills_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Skills endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/skills")
-async def learn_skill() -> dict:
+async def learn_skill(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Learn skill endpoint by player id
     """
     return {"test": "ok"}
 
 
 @router.get("/homes")
-async def get_homes_list() -> dict:
+async def get_homes_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Homes endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/homes")
-async def buy_home() -> dict:
+async def buy_home(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Buy home by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/transport")
-async def get_transport_list() -> dict:
+async def get_transport_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Transport endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/transport")
-async def buy_transport() -> dict:
+async def buy_transport(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Buy transport by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/street")
-async def get_street_actions_list() -> dict:
+async def get_street_actions_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Street actions endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/street")
-async def perform_street_action() -> dict:
+async def perform_street_action(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Perform street action by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/work")
-async def get_work_action_list() -> dict:
+async def get_work_action_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Work actions endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/work")
-async def perform_work_action() -> dict:
+async def perform_work_action(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Perform work  action by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/food")
-async def get_food_list() -> dict:
+async def get_food_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Food endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/food")
-async def buy_food() -> dict:
+async def buy_food(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Buy food by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/health")
-async def get_health_list() -> dict:
+async def get_health_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Health endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/health")
-async def buy_health() -> dict:
+async def buy_health(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Buy health by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/leisure")
-async def get_leisure_list() -> dict:
+async def get_leisure_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Leisure endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/leisure")
-async def buy_leisure() -> dict:
+async def buy_leisure(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Buy leisure by player id endpoint
     """
     return {"test": "ok"}
 
 
 @router.get("/business")
-async def get_business_list() -> dict:
+async def get_business_list(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Business endpoint
     """
     return {"test": "ok"}
 
 
 @router.post("/business")
-async def buy_business() -> dict:
+async def buy_business(
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """ Buy business by player id endpoint
     """
     return {"test": "ok"}
