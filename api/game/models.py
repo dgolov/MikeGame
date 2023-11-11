@@ -43,6 +43,7 @@ class Player(Base):
     age = Column(Integer, nullable=False)
     authority = Column(Integer, nullable=False)
     day = Column(Integer, nullable=False)
+    balances = relationship("Balance", lazy="selectin", join_depth=2)
     home_list = relationship(
         "Home",
         secondary=home_player,
