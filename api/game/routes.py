@@ -43,8 +43,8 @@ async def add_player(
             content={"message": error_message}
         )
 
-    player = logic.Player()
-    await player.add_player(user_id=user.id, session=session)
+    player = logic.Player(user=user, session=session)
+    await player.add_player()
 
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
