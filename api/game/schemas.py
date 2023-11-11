@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from pydantic import BaseModel
 
 
@@ -20,37 +21,11 @@ class HarmSchemaMixin:
     health_harm_max: int
 
 
-class PlayerBase(BaseModel):
-    hunger: int
-    rest: int
-    health: int
-    level: int
-    age: int
-    authority: int
-    day: int
-
-    class Config:
-        orm_mode = True
-
-
-class PlayerSchema(PlayerBase):
-    user_id: int
-    id: int
-
-
-class CreatePlayer(PlayerBase):
-    user_id: int
-
-
-class UpdatePlayer(PlayerBase):
-    pass
-
-
 class CurrencyBase(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CurrencySchema(CurrencyBase):
@@ -67,24 +42,52 @@ class UpdateCurrency(CurrencyBase):
 
 class BalanceBase(BaseModel):
     name: str
-    currency_id: int
-    player_id: int
     amount: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BalanceSchema(BalanceBase):
     id: int
     updated_at: datetime
+    currency: CurrencySchema
 
 
 class CreateBalance(BalanceBase):
-    pass
+    currency_id: int
+    player_id: int
 
 
 class UpdateBalance(BalanceBase):
+    currency_id: int
+    player_id: int
+
+
+class PlayerBase(BaseModel):
+    hunger: int
+    rest: int
+    health: int
+    level: int
+    age: int
+    authority: int
+    day: int
+
+    class Config:
+        from_attributes = True
+
+
+class PlayerSchema(PlayerBase):
+    user_id: int
+    id: int
+    balances: List[BalanceSchema]
+
+
+class CreatePlayer(PlayerBase):
+    user_id: int
+
+
+class UpdatePlayer(PlayerBase):
     pass
 
 
@@ -93,7 +96,7 @@ class HomeBase(BaseModel):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class HomeSchema(HomeBase):
@@ -113,7 +116,7 @@ class SkillBase(BaseModel):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SkillSchema(SkillBase):
@@ -134,7 +137,7 @@ class TransportBase(BaseModel):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TransportSchema(TransportBase):
@@ -158,7 +161,7 @@ class StreetActionBase(BaseModel, HarmSchemaMixin):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class StreetActionSchema(StreetActionBase):
@@ -182,7 +185,7 @@ class WorkBase(BaseModel, HarmSchemaMixin):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class WorkSchema(WorkBase):
@@ -202,7 +205,7 @@ class FoodBase(BaseModel, BenefitSchemaMixin):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FoodSchema(FoodBase):
@@ -222,7 +225,7 @@ class HealthBase(BaseModel, BenefitSchemaMixin):
     price: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class HealthSchema(HealthBase):
@@ -243,7 +246,7 @@ class LeisureBase(BaseModel, BenefitSchemaMixin):
     skill_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class LeisureSchema(LeisureBase):
@@ -270,7 +273,7 @@ class BusinessBase(BaseModel):
     min_authority: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BusinessSchema(BusinessBase):
