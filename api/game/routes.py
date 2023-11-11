@@ -3,7 +3,7 @@ from core.engine import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-from game import logic
+from game import logic, schemas
 from users.models import User
 from users.utils import current_user
 
@@ -18,14 +18,21 @@ async def test() -> dict:
     return {"test": "ok"}
 
 
-@router.get("/info")
+@router.get("/info", response_model=schemas.PlayerSchema)
 async def get_play_info(
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> schemas.PlayerSchema | JSONResponse:
     """ Info endpoint
     """
-    return {"test": "ok"}
+    player = logic.Player(user=user, session=session)
+    player_info = await player.get_info()
+    if not player_info:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": f"Player is not exist for user - {user.email}"}
+        )
+    return schemas.PlayerSchema.from_orm(player_info)
 
 
 @router.post("/player")
