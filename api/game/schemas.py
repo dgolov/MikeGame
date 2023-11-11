@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from pydantic import BaseModel
 
 
@@ -18,32 +19,6 @@ class HarmSchemaMixin:
     rest_harm_max: int
     health_harm_min: int
     health_harm_max: int
-
-
-class PlayerBase(BaseModel):
-    hunger: int
-    rest: int
-    health: int
-    level: int
-    age: int
-    authority: int
-    day: int
-
-    class Config:
-        from_attributes = True
-
-
-class PlayerSchema(PlayerBase):
-    user_id: int
-    id: int
-
-
-class CreatePlayer(PlayerBase):
-    user_id: int
-
-
-class UpdatePlayer(PlayerBase):
-    pass
 
 
 class CurrencyBase(BaseModel):
@@ -67,8 +42,6 @@ class UpdateCurrency(CurrencyBase):
 
 class BalanceBase(BaseModel):
     name: str
-    currency_id: int
-    player_id: int
     amount: int
 
     class Config:
@@ -78,13 +51,43 @@ class BalanceBase(BaseModel):
 class BalanceSchema(BalanceBase):
     id: int
     updated_at: datetime
+    currency: CurrencySchema
 
 
 class CreateBalance(BalanceBase):
-    pass
+    currency_id: int
+    player_id: int
 
 
 class UpdateBalance(BalanceBase):
+    currency_id: int
+    player_id: int
+
+
+class PlayerBase(BaseModel):
+    hunger: int
+    rest: int
+    health: int
+    level: int
+    age: int
+    authority: int
+    day: int
+
+    class Config:
+        from_attributes = True
+
+
+class PlayerSchema(PlayerBase):
+    user_id: int
+    id: int
+    balances: List[BalanceSchema]
+
+
+class CreatePlayer(PlayerBase):
+    user_id: int
+
+
+class UpdatePlayer(PlayerBase):
     pass
 
 
