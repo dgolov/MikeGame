@@ -104,6 +104,7 @@ class Home(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
 
     def __str__(self):
@@ -115,6 +116,7 @@ class Skill(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
 
     def __str__(self):
@@ -126,6 +128,7 @@ class Transport(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
@@ -139,7 +142,9 @@ class StreetAction(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
-    income = Column(Integer, nullable=False)
+    description = Column(String)
+    income_min = Column(Integer, nullable=False)
+    income_max = Column(Integer, nullable=False)
     currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
     currency = relationship("Currency", lazy="selectin")
     transport_id = Column(Integer, ForeignKey('transport.id'))
@@ -164,7 +169,9 @@ class Work(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
-    income = Column(Integer, nullable=False)
+    description = Column(String)
+    income_min = Column(Integer, nullable=False)
+    income_max = Column(Integer, nullable=False)
     currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
     currency = relationship("Currency", lazy="selectin")
     transport_id = Column(Integer, ForeignKey('transport.id'))
@@ -189,6 +196,7 @@ class Food(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
     hunger_benefit_min = Column(Integer)
     hunger_benefit_max = Column(Integer)
@@ -206,6 +214,7 @@ class Health(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
     hunger_benefit_min = Column(Integer)
     hunger_benefit_max = Column(Integer)
@@ -223,6 +232,7 @@ class Leisure(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
@@ -242,6 +252,7 @@ class Business(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    description = Column(String)
     price = Column(Integer, nullable=False)
     income = Column(Integer, nullable=False)
     income_period = Column(Integer, nullable=False)
