@@ -191,9 +191,9 @@ class WorkBase(BaseModel, HarmSchemaMixin):
     income_min: int
     income_max: int
     currency_id: int
-    transport_id: int
-    home_id: int
-    skill_id: int
+    transport_id: int | None
+    home_id: int | None
+    skill_id: int | None
 
     class Config:
         from_attributes = True
@@ -209,6 +209,10 @@ class CreateWork(WorkBase):
 
 class UpdateWork(WorkBase):
     pass
+
+
+class PerformWorkSchema(BaseModel):
+    id: int
 
 
 class FoodBase(BaseModel, BenefitSchemaMixin):
