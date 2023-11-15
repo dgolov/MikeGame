@@ -155,7 +155,7 @@ class UpdateTransport(TransportBase):
     pass
 
 
-class StreetActionBase(BaseModel, HarmSchemaMixin):
+class ActionBaseSchema:
     name: str
     description: str | None
     income_min: int
@@ -164,6 +164,10 @@ class StreetActionBase(BaseModel, HarmSchemaMixin):
     transport_id: int | None
     home_id: int | None
     skill_id: int | None
+
+
+class StreetActionBase(BaseModel, ActionBaseSchema, HarmSchemaMixin):
+    pass
 
     class Config:
         from_attributes = True
@@ -185,15 +189,8 @@ class PerformStreetActionSchema(BaseModel):
     id: int
 
 
-class WorkBase(BaseModel, HarmSchemaMixin):
-    name: str
-    description: str | None
-    income_min: int
-    income_max: int
-    currency_id: int
-    transport_id: int | None
-    home_id: int | None
-    skill_id: int | None
+class WorkBase(BaseModel, ActionBaseSchema, HarmSchemaMixin):
+    pass
 
     class Config:
         from_attributes = True
