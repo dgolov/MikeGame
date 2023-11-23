@@ -3,7 +3,7 @@ from config import logger
 from game import models
 from game.exceptions import NotFoundException, PlayerException
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from typing import List, Union
 from users.models import User
 
 import random
@@ -24,6 +24,7 @@ class Game:
         self.session = session
         self.user = user
         self.player = None
+        self.repository = None
 
     def next_day(self) -> None:
         logger.debug(f"{self.user.email} Set next day")
@@ -82,6 +83,27 @@ class Game:
     @staticmethod
     def _get_random_value(min_value: int, max_value: int) -> int:
         return random.randint(min_value, max_value)
+
+    async def _get_by_id(
+            self,
+            object_id: int
+    ) -> Union[
+            models.Food,
+            models.Health,
+            models.Transport,
+            models.Home,
+            models.Home,
+            models.Skill,
+            models.Work,
+            models.Leisure,
+            models.Business,
+            None
+    ]:
+        """ Get db object by id from repository
+        :param object_id:
+        :return:
+        """
+        return await self.repository.get_by_id(object_id=object_id)
 
 
 class Player(Game):
@@ -156,13 +178,10 @@ class StreetAction(Game):
         super(StreetAction, self).__init__(session, user)
         self.repository = repository_entity.StreetActionEntity(session=session)
 
-    async def get_action(self, action_id) -> models.StreetAction | None:
-        return await self.repository.get_street_action_by_id(street_action_id=action_id)
-
     @Game.get_current_player
     async def run(self, action_id: int) -> None:
         logger.debug(f"{self.user.email} Perform street action id {action_id}")
-        action = await self.get_action(action_id=action_id)
+        action: models.StreetAction | None = await self._get_by_id(object_id=action_id)
 
         if not action:
             raise NotFoundException(f"Action is not found")
@@ -183,13 +202,10 @@ class Work(Game):
         super(Work, self).__init__(session, user)
         self.repository = repository_entity.WorkEntity(session=session)
 
-    async def get_action(self, work_id) -> models.Work | None:
-        return await self.repository.get_work_by_id(work_id=work_id)
-
     @Game.get_current_player
     async def run(self, work_id: int) -> None:
         logger.debug(f"{self.user.email} Perform work id {work_id}")
-        work = await self.get_action(work_id=work_id)
+        work: models.Work | None = await self._get_by_id(object_id=work_id)
 
         if not work:
             raise NotFoundException(f"Work is not found")
