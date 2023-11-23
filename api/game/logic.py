@@ -324,6 +324,14 @@ class Health(Game):
         logger.debug(f"{self.user.email} Buy health id {health_id}")
         health: models.Health | None = await self._get_by_id(object_id=health_id)
 
+        if not health:
+            raise NotFoundException(f"Health is not found")
+
+        self.set_player_benefit(benefit_action=health)
+        self.update_balance(action=health)
+        self.next_day()
+        await self.session.commit()
+
     async def get_health_list(self) -> List[models.Health]:
         return await self.repository.get_health_list()
 
@@ -337,6 +345,14 @@ class Leisure(Game):
     async def buy(self, leisure_id) -> None:
         logger.debug(f"{self.user.email} Buy leisure id {leisure_id}")
         leisure: models.Leisure | None = await self._get_by_id(object_id=leisure_id)
+
+        if not leisure:
+            raise NotFoundException(f"Leisure is not found")
+
+        self.set_player_benefit(benefit_action=leisure)
+        self.update_balance(action=leisure)
+        self.next_day()
+        await self.session.commit()
 
     async def get_leisure_list(self) -> List[models.Leisure]:
         return await self.repository.get_leisure_list()
