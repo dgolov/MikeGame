@@ -11,6 +11,7 @@ import random
 
 class Game:
 
+    @staticmethod
     def get_current_player(func):
         def wrapper(self, *args, **kwargs):
             self.player = self.get_player()
