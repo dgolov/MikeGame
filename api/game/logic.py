@@ -305,6 +305,11 @@ class Food(Game):
         if not food:
             raise NotFoundException(f"Food is not found")
 
+        self.set_player_benefit(benefit_action=food)
+        self.update_balance(action=food)
+        self.next_day()
+        await self.session.commit()
+
     async def get_food_list(self) -> List[models.Food]:
         return await self.repository.get_food_list()
 
