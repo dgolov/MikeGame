@@ -127,7 +127,7 @@ class Game:
         :param action: work or street action
         :return:
         """
-        if getattr(action, "price"):
+        if hasattr(action, "price"):
             amount = -action.price
         else:
             amount = self._get_random_value(
