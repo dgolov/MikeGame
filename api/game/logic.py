@@ -117,6 +117,7 @@ class Home(Game):
         super(Home, self).__init__(session, user)
         self.repository = repository_entity.HomeEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
@@ -129,6 +130,7 @@ class Skill(Game):
         super(Skill, self).__init__(session, user)
         self.repository = repository_entity.SkillEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
@@ -141,6 +143,7 @@ class Transport(Game):
         super(Transport, self).__init__(session, user)
         self.repository = repository_entity.TransportEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
@@ -207,6 +210,7 @@ class Food(Game):
         super(Food, self).__init__(session, user)
         self.repository = repository_entity.FoodEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
@@ -219,6 +223,7 @@ class Health(Game):
         super(Health, self).__init__(session, user)
         self.repository = repository_entity.HealthEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
@@ -231,6 +236,7 @@ class Leisure(Game):
         super(Leisure, self).__init__(session, user)
         self.repository = repository_entity.LeisureEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
@@ -243,6 +249,7 @@ class Business(Game):
         super(Business, self).__init__(session, user)
         self.repository = repository_entity.BusinessEntity(session=session)
 
+    @Game.get_current_player
     def buy(self) -> None:
         ...
 
