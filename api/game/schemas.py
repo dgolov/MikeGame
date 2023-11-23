@@ -186,7 +186,7 @@ class UpdateStreetAction(StreetActionBase):
     pass
 
 
-class PerformStreetActionSchema(BaseModel):
+class PerformActionSchema(BaseModel):
     id: int
 
 
