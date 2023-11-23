@@ -31,6 +31,8 @@ class Game:
     def next_day(self) -> None:
         logger.debug(f"{self.user.email} Set next day")
         self.player.day += 1
+        if 365 % self.player.day == 0:
+            self.player.age += 1
         self.session.add(self.player)
 
     def get_player(self) -> models.Player | None:
