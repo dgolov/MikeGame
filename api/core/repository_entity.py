@@ -173,6 +173,10 @@ class CurrencyEntity(Base):
             self,
             object_id: int
     ) -> models.Currency:
+        """ Get currency by id
+        :param object_id: currency_id
+        :return: Currency db object
+        """
         return await super(CurrencyEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
@@ -215,6 +219,10 @@ class BalanceEntity(Base):
             self,
             object_id: int
     ) -> models.Balance:
+        """ Get balance by id
+        :param object_id: balance_id
+        :return: Balance db object
+        """
         return await super(BalanceEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateBalance | dict) -> int:
@@ -257,6 +265,10 @@ class HomeEntity(Base):
             self,
             object_id: int
     ) -> models.Home:
+        """ Get home by id
+        :param object_id: home_id
+        :return: Home db object
+        """
         return await super(HomeEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateHome | dict) -> int:
@@ -299,6 +311,10 @@ class SkillEntity(Base):
             self,
             object_id: int
     ) -> models.Skill:
+        """ Get skill by id
+        :param object_id: skill_id
+        :return: Skill db object
+        """
         return await super(SkillEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateSkill | dict) -> int:
@@ -341,6 +357,10 @@ class TransportEntity(Base):
             self,
             object_id: int
     ) -> models.Transport:
+        """ Get transport by id
+        :param object_id: transport_id
+        :return: Transport db object
+        """
         return await super(TransportEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
@@ -383,6 +403,10 @@ class StreetActionEntity(Base):
             self,
             object_id: int
     ) -> models.StreetAction:
+        """ Get street action by id
+        :param object_id: street_action_id
+        :return: StreetAction db object
+        """
         return await super(StreetActionEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateStreetAction | dict) -> int:
@@ -425,6 +449,10 @@ class WorkEntity(Base):
             self,
             object_id: int
     ) -> models.Work:
+        """ Get work by id
+        :param object_id: work_id
+        :return: Work db object
+        """
         return await super(WorkEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateWork | dict) -> int:
@@ -467,6 +495,10 @@ class FoodEntity(Base):
             self,
             object_id: int
     ) -> models.Food:
+        """ Get food by id
+        :param object_id: food_id
+        :return: Food db object
+        """
         return await super(FoodEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateFood | dict) -> int:
@@ -509,6 +541,10 @@ class HealthEntity(Base):
             self,
             object_id: int
     ) -> models.Health:
+        """ Get health by id
+        :param object_id: health_id
+        :return: Health db object
+        """
         return await super(HealthEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateHealth | dict) -> int:
@@ -551,6 +587,10 @@ class LeisureEntity(Base):
             self,
             object_id: int
     ) -> models.Leisure:
+        """ Get leisure by id
+        :param object_id: leisure_id
+        :return: Leisure db object
+        """
         return await super(LeisureEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateLeisure | dict) -> int:
@@ -593,6 +633,10 @@ class BusinessEntity(Base):
             self,
             object_id: int
     ) -> models.Business:
+        """ Get business by id
+        :param object_id: business_id
+        :return: Business db object
+        """
         return await super(BusinessEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateBusiness | dict) -> int:
