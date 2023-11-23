@@ -65,6 +65,32 @@ class Game:
         self.player.health -= health_harm
         self.session.add(self.player)
 
+    def set_player_benefit(
+            self,
+            harm_action: models.Health | models.Food | models.Leisure
+    ) -> None:
+        """ Set benefit for player
+        :param harm_action: benefit action
+        :return:
+        """
+        hunger_benefit = self._get_random_value(
+            min_value=harm_action.hunger_benefit_min,
+            max_value=harm_action.hunger_benefit_max
+        )
+        rest_benefit = self._get_random_value(
+            min_value=harm_action.rest_benefit_min,
+            max_value=harm_action.rest_benefit_max
+        )
+        health_benefit = self._get_random_value(
+            min_value=harm_action.health_benefit_min,
+            max_value=harm_action.health_benefit_max
+        )
+
+        self.player.hunger += hunger_benefit
+        self.player.rest += rest_benefit
+        self.player.health += health_benefit
+        self.session.add(self.player)
+
     def update_balance(
             self,
             action: Union[
