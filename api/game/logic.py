@@ -62,9 +62,17 @@ class Game:
             max_value=harm_action.health_harm_max
         )
 
-        self.player.hunger -= hunger_harm
-        self.player.rest -= rest_harm
-        self.player.health -= health_harm
+        authority_benefit = self._get_authority_benefit(action=harm_action)
+
+        if hunger_harm:
+            self.player.hunger -= hunger_harm
+        if rest_harm:
+            self.player.rest -= rest_harm
+        if health_harm:
+            self.player.health -= health_harm
+        if authority_benefit:
+            self.player.authority += authority_benefit
+
         self.session.add(self.player)
 
     def set_player_benefit(
@@ -88,9 +96,17 @@ class Game:
             max_value=benefit_action.health_benefit_max
         )
 
-        self.player.hunger += hunger_benefit
-        self.player.rest += rest_benefit
-        self.player.health += health_benefit
+        authority_benefit = self._get_authority_benefit(action=benefit_action)
+
+        if hunger_benefit:
+            self.player.hunger += hunger_benefit
+        if rest_benefit:
+            self.player.rest += rest_benefit
+        if health_benefit:
+            self.player.health += health_benefit
+        if authority_benefit:
+            self.player.authority += authority_benefit
+
         self.session.add(self.player)
 
     def update_balance(
@@ -122,6 +138,19 @@ class Game:
             if balance.currency.id == action.currency_id:
                 balance.amount += amount
                 self.session.add(balance)
+
+    def _get_authority_benefit(self, action):
+        """ Check authority_benefit fields and get random value
+        :param action:
+        :return:
+        """
+        authority_benefit = None
+        if hasattr(action, "authority_benefit_min") and hasattr(action, "authority_benefit_max"):
+            authority_benefit = self._get_random_value(
+                min_value=action.authority_benefit_min,
+                max_value=action.authority_benefit_max
+            )
+        return authority_benefit
 
     @staticmethod
     def _get_random_value(min_value: int, max_value: int) -> int:
