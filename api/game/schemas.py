@@ -167,7 +167,8 @@ class ActionBaseSchema:
 
 
 class StreetActionBase(BaseModel, ActionBaseSchema, HarmSchemaMixin):
-    pass
+    authority_benefit_min: int | None
+    authority_benefit_max: int | None
 
     class Config:
         from_attributes = True
@@ -259,6 +260,8 @@ class LeisureBase(BaseModel, BenefitSchemaMixin):
     description: str | None
     price: int
     skill_id: int
+    authority_benefit_min: int | None
+    authority_benefit_max: int | None
 
     class Config:
         from_attributes = True
