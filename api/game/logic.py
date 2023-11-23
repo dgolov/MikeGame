@@ -10,14 +10,24 @@ import random
 
 
 class Game:
+
+    def get_current_player(func):
+        def wrapper(self, *args, **kwargs):
+            self.player = self.get_player()
+            result = func(self, *args, **kwargs)
+            return result
+
+        return wrapper
+
     def __init__(self, session: AsyncSession, user: User):
         self.session = session
         self.user = user
+        self.player = None
 
-    def next_day(self, player: models.Player) -> None:
+    def next_day(self) -> None:
         logger.debug(f"{self.user.email} Set next day")
-        player.day += 1
-        self.session.add(player)
+        self.player.day += 1
+        self.session.add(self.player)
 
     def get_player(self) -> models.Player | None:
         try:
@@ -27,11 +37,9 @@ class Game:
 
     def set_player_harm(
             self,
-            player: models.Player,
             harm_action: models.StreetAction | models.Work
     ) -> None:
         """ Set harm for player
-        :param player: item player
         :param harm_action: harm action
         :return:
         """
@@ -48,18 +56,16 @@ class Game:
             max_value=harm_action.health_harm_max
         )
 
-        player.hunger -= hunger_harm
-        player.rest -= rest_harm
-        player.health -= health_harm
-        self.session.add(player)
+        self.player.hunger -= hunger_harm
+        self.player.rest -= rest_harm
+        self.player.health -= health_harm
+        self.session.add(self.player)
 
     def update_balance(
             self,
-            player: models.Player,
             action: models.StreetAction | models.Work
     ) -> None:
         """ Updated player balance after work or street action
-        :param player: item player
         :param action: work or street action
         :return:
         """
@@ -67,7 +73,7 @@ class Game:
             min_value=action.income_min,
             max_value=action.income_max
         )
-        for balance in player.balances:
+        for balance in self.player.balances:
             if balance.currency.id == action.currency_id:
                 balance.amount += income
                 self.session.add(balance)
@@ -149,19 +155,19 @@ class StreetAction(Game):
     async def get_action(self, action_id) -> models.StreetAction | None:
         return await self.repository.get_street_action_by_id(street_action_id=action_id)
 
+    @Game.get_current_player
     async def run(self, action_id: int) -> None:
         logger.debug(f"{self.user.email} Perform street action id {action_id}")
         action = await self.get_action(action_id=action_id)
-        player = self.get_player()
 
         if not action:
             raise NotFoundException(f"Action is not found")
-        if not player:
+        if not self.player:
             raise PlayerException(f"Player is not found")
 
-        self.set_player_harm(player=player, harm_action=action)
-        self.update_balance(player=player, action=action)
-        self.next_day(player=player)
+        self.set_player_harm( harm_action=action)
+        self.update_balance(action=action)
+        self.next_day()
         await self.session.commit()
 
     async def get_street_action_list(self) -> List[models.StreetAction]:
@@ -176,19 +182,19 @@ class Work(Game):
     async def get_action(self, work_id) -> models.Work | None:
         return await self.repository.get_work_by_id(work_id=work_id)
 
+    @Game.get_current_player
     async def run(self, work_id: int) -> None:
         logger.debug(f"{self.user.email} Perform work id {work_id}")
         work = await self.get_action(work_id=work_id)
-        player = self.get_player()
 
         if not work:
             raise NotFoundException(f"Work is not found")
-        if not player:
+        if not self.player:
             raise PlayerException(f"Player is not found")
 
-        self.set_player_harm(player=player, harm_action=work)
-        self.update_balance(player=player, action=work)
-        self.next_day(player=player)
+        self.set_player_harm(harm_action=work)
+        self.update_balance(action=work)
+        self.next_day()
         await self.session.commit()
 
     async def get_work_list(self) -> List[models.Work]:
