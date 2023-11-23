@@ -159,6 +159,8 @@ class StreetAction(Base):
     rest_harm_max = Column(Integer)
     health_harm_min = Column(Integer)
     health_harm_max = Column(Integer)
+    authority_benefit_min = Column(Integer)
+    authority_benefit_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -248,6 +250,8 @@ class Leisure(Base):
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    authority_benefit_min = Column(Integer)
+    authority_benefit_max = Column(Integer)
 
     def __str__(self):
         return self.name
