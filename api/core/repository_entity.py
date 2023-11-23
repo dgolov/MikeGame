@@ -169,6 +169,12 @@ class CurrencyEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Currency:
+        return await super(CurrencyEntity, self).get_by_id(object_id)
+
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -204,6 +210,12 @@ class BalanceEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Balance:
+        return await super(BalanceEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateBalance | dict) -> int:
         if not isinstance(data, dict):
@@ -241,6 +253,12 @@ class HomeEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Home:
+        return await super(HomeEntity, self).get_by_id(object_id)
+
     async def create(self, data: schemas.CreateHome | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -276,6 +294,12 @@ class SkillEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Skill:
+        return await super(SkillEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateSkill | dict) -> int:
         if not isinstance(data, dict):
@@ -313,6 +337,12 @@ class TransportEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Transport:
+        return await super(TransportEntity, self).get_by_id(object_id)
+
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -348,6 +378,12 @@ class StreetActionEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.StreetAction:
+        return await super(StreetActionEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateStreetAction | dict) -> int:
         if not isinstance(data, dict):
@@ -385,6 +421,12 @@ class WorkEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Work:
+        return await super(WorkEntity, self).get_by_id(object_id)
+
     async def create(self, data: schemas.CreateWork | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -420,6 +462,12 @@ class FoodEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Food:
+        return await super(FoodEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateFood | dict) -> int:
         if not isinstance(data, dict):
@@ -457,6 +505,12 @@ class HealthEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Health:
+        return await super(HealthEntity, self).get_by_id(object_id)
+
     async def create(self, data: schemas.CreateHealth | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -493,6 +547,12 @@ class LeisureEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Leisure:
+        return await super(LeisureEntity, self).get_by_id(object_id)
+
     async def create(self, data: schemas.CreateLeisure | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -528,6 +588,12 @@ class BusinessEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Business:
+        return await super(BusinessEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateBusiness | dict) -> int:
         if not isinstance(data, dict):
