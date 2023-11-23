@@ -67,19 +67,32 @@ class Game:
 
     def update_balance(
             self,
-            action: models.StreetAction | models.Work
+            action: Union[
+                models.Food,
+                models.Health,
+                models.Transport,
+                models.Home,
+                models.Home,
+                models.Skill,
+                models.Work,
+                models.Leisure,
+                models.Business,
+            ]
     ) -> None:
         """ Updated player balance after work or street action
         :param action: work or street action
         :return:
         """
-        income = self._get_random_value(
-            min_value=action.income_min,
-            max_value=action.income_max
-        )
+        if getattr(action, "price"):
+            amount = -action.price
+        else:
+            amount = self._get_random_value(
+                min_value=action.income_min,
+                max_value=action.income_max
+            )
         for balance in self.player.balances:
             if balance.currency.id == action.currency_id:
-                balance.amount += income
+                balance.amount += amount
                 self.session.add(balance)
 
     @staticmethod
