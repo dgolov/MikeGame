@@ -149,7 +149,7 @@ async def get_street_actions_list(
 
 @router.post("/street")
 async def perform_street_action(
-        data: schemas.PerformStreetActionSchema,
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
@@ -190,7 +190,7 @@ async def get_work_action_list(
 
 @router.post("/work")
 async def perform_work_action(
-        data: schemas.PerformStreetActionSchema,
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
@@ -231,12 +231,29 @@ async def get_food_list(
 
 @router.post("/food")
 async def buy_food(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy food by player id endpoint
     """
-    return {"test": "ok"}
+    food_logic = logic.Food(session=session, user=user)
+    try:
+        await food_logic.buy(food_id=data.id)
+    except NotFoundException:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Food not found"}
+        )
+    except PlayerException:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Player not found"}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Ok"}
+    )
 
 
 @router.get("/health", response_model=List[schemas.HealthSchema])
