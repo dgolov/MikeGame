@@ -272,12 +272,29 @@ async def get_health_list(
 
 @router.post("/health")
 async def buy_health(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy health by player id endpoint
     """
-    return {"test": "ok"}
+    health_logic = logic.Health(session=session, user=user)
+    try:
+        await health_logic.buy(food_id=data.id)
+    except NotFoundException:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Health not found"}
+        )
+    except PlayerException:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Player not found"}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Ok"}
+    )
 
 
 @router.get("/leisure", response_model=List[schemas.LeisureSchema])
@@ -296,12 +313,29 @@ async def get_leisure_list(
 
 @router.post("/leisure")
 async def buy_leisure(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy leisure by player id endpoint
     """
-    return {"test": "ok"}
+    leisure_logic = logic.Leisure(session=session, user=user)
+    try:
+        await leisure_logic.buy(food_id=data.id)
+    except NotFoundException:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Leisure not found"}
+        )
+    except PlayerException:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Player not found"}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Ok"}
+    )
 
 
 @router.get("/business", response_model=List[schemas.BusinessSchema])
