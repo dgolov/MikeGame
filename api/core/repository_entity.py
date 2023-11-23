@@ -3,6 +3,8 @@ from datetime import datetime
 from game import models, schemas
 from sqlalchemy import select, insert
 
+from typing import Union
+
 
 async def init_db() -> None:
     """ Initialisation empty db
@@ -38,8 +40,31 @@ async def init_db() -> None:
 
 
 class Base:
+    model = None
+
     def __init__(self, session):
         self.session = session
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> Union[
+            models.Skill,
+            models.Currency,
+            models.Balance,
+            models.Home,
+            models.Skill,
+            models.Transport,
+            models.StreetAction,
+            models.Work,
+            models.Food,
+            models.Health,
+            models.Leisure,
+            models.Business
+    ]:
+        query = select(self.model).filter(self.model.id == object_id)
+        result = await self.session.execute(query)
+        return self._first(result)
 
     @staticmethod
     def _all(result):
@@ -144,11 +169,6 @@ class CurrencyEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
-    async def get_currency_by_id(self, currency_id: int) -> models.Currency:
-        query = select(self.model).filter(self.model.id == currency_id)
-        result = await self.session.execute(query)
-        return self._first(result)
-
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -184,11 +204,6 @@ class BalanceEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
-
-    async def get_balance_by_id(self, balance_id: int) -> models.Balance:
-        query = select(self.model).filter(self.model.id == balance_id)
-        result = await self.session.execute(query)
-        return self._first(result)
 
     async def create(self, data: schemas.CreateBalance | dict) -> int:
         if not isinstance(data, dict):
@@ -226,11 +241,6 @@ class HomeEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
-    async def get_home_by_id(self, home_id: int) -> models.Home:
-        query = select(self.model).filter(self.model.id == home_id)
-        result = await self.session.execute(query)
-        return self._first(result)
-
     async def create(self, data: schemas.CreateHome | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -266,11 +276,6 @@ class SkillEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
-
-    async def get_skill_by_id(self, skill_id: int) -> models.Skill:
-        query = select(self.model).filter(self.model.id == skill_id)
-        result = await self.session.execute(query)
-        return self._first(result)
 
     async def create(self, data: schemas.CreateSkill | dict) -> int:
         if not isinstance(data, dict):
@@ -308,11 +313,6 @@ class TransportEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
-    async def get_transport_by_id(self, transport_id: int) -> models.Transport:
-        query = select(self.model).filter(self.model.id == transport_id)
-        result = await self.session.execute(query)
-        return self._first(result)
-
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -348,11 +348,6 @@ class StreetActionEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
-
-    async def get_street_action_by_id(self, street_action_id: int) -> models.StreetAction:
-        query = select(self.model).filter(self.model.id == street_action_id)
-        result = await self.session.execute(query)
-        return self._first(result)
 
     async def create(self, data: schemas.CreateStreetAction | dict) -> int:
         if not isinstance(data, dict):
@@ -390,11 +385,6 @@ class WorkEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
-    async def get_work_by_id(self, work_id: int) -> models.Work:
-        query = select(self.model).filter(self.model.id == work_id)
-        result = await self.session.execute(query)
-        return self._first(result)
-
     async def create(self, data: schemas.CreateWork | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -430,11 +420,6 @@ class FoodEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
-
-    async def get_food_by_id(self, food_id: int) -> models.Food:
-        query = select(self.model).filter(self.model.id == food_id)
-        result = await self.session.execute(query)
-        return self._first(result)
 
     async def create(self, data: schemas.CreateFood | dict) -> int:
         if not isinstance(data, dict):
@@ -472,11 +457,6 @@ class HealthEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
-    async def get_health_by_id(self, health_id: int) -> models.Health:
-        query = select(self.model).filter(self.model.id == health_id)
-        result = await self.session.execute(query)
-        return self._first(result)
-
     async def create(self, data: schemas.CreateHealth | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -513,11 +493,6 @@ class LeisureEntity(Base):
         result = await self.session.execute(query)
         return self._all(result)
 
-    async def get_leisure_by_id(self, leisure_id: int) -> models.Leisure:
-        query = select(self.model).filter(self.model.id == leisure_id)
-        result = await self.session.execute(query)
-        return self._first(result)
-
     async def create(self, data: schemas.CreateLeisure | dict) -> int:
         if not isinstance(data, dict):
             data = data.dict()
@@ -553,11 +528,6 @@ class BusinessEntity(Base):
         query = select(self.model)
         result = await self.session.execute(query)
         return self._all(result)
-
-    async def get_business_by_id(self, business_id: int) -> models.Business:
-        query = select(self.model).filter(self.model.id == business_id)
-        result = await self.session.execute(query)
-        return self._first(result)
 
     async def create(self, data: schemas.CreateBusiness | dict) -> int:
         if not isinstance(data, dict):
