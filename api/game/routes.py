@@ -190,12 +190,29 @@ async def get_work_action_list(
 
 @router.post("/work")
 async def perform_work_action(
+        data: schemas.PerformStreetActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
-    """ Perform work  action by player id endpoint
+) -> JSONResponse:
+    """ Perform work action by player id endpoint
     """
-    return {"test": "ok"}
+    work_logic = logic.Work(session=session, user=user)
+    try:
+        await work_logic.run(work_id=data.id)
+    except NotFoundException:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Work not found"}
+        )
+    except PlayerException:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Player not found"}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Ok"}
+    )
 
 
 @router.get("/food", response_model=List[schemas.FoodSchema])

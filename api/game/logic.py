@@ -173,8 +173,23 @@ class Work(Game):
         super(Work, self).__init__(session, user)
         self.repository = repository_entity.WorkEntity(session=session)
 
-    def run(self) -> None:
-        ...
+    async def get_action(self, work_id) -> models.Work | None:
+        return await self.repository.get_work_by_id(work_id=work_id)
+
+    async def run(self, work_id: int) -> None:
+        logger.debug(f"{self.user.email} Perform work id {work_id}")
+        work = await self.get_action(work_id=work_id)
+        player = self.get_player()
+
+        if not work:
+            raise NotFoundException(f"Work is not found")
+        if not player:
+            raise PlayerException(f"Player is not found")
+
+        self.set_player_harm(player=player, harm_action=work)
+        self.update_balance(player=player, action=work)
+        self.next_day(player=player)
+        await self.session.commit()
 
     async def get_work_list(self) -> List[models.Work]:
         return await self.repository.get_work_list()
