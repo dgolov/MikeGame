@@ -139,6 +139,31 @@ class Game:
                 balance.amount += amount
                 self.session.add(balance)
 
+    def _check_balance(
+            self,
+            balance: models.Balance,
+            purchased_object: Union[
+                models.Food,
+                models.Home,
+                models.Skill,
+                models.Leisure,
+                models.Business,
+                models.Transport,
+                models.Health
+            ]
+    ) -> None:
+        """ Check balance before purchasing
+        :param balance:
+        :param purchased_object:
+        :return:
+        """
+        if balance.amount < purchased_object.price:
+            logger.warning(
+                f"{self.user.email} does not have enough money "
+                f"to purchase {purchased_object} (id - {purchased_object.id})"
+            )
+            raise NoMoneyError("You do not have enough money to make this purchase")
+
     def _get_authority_benefit(self, action):
         """ Check authority_benefit fields and get random value
         :param action:
@@ -252,11 +277,7 @@ class Transport(Game):
 
         for balance in self.player.balances:
             if balance.currency_id == transport.currency_id:
-                if balance.amount < transport.price:
-                    logger.warning(
-                        f"{self.user.email} does not have enough money to purchase {transport} (id - {transport.id})"
-                    )
-                    raise NoMoneyError("You does not have enough money to purchase this transport")
+                self._check_balance(balance=balance, purchased_object=transport)
                 self.player.transport_list.append(transport)
                 balance.amount -= transport.price
                 logger.info(
