@@ -106,6 +106,8 @@ class Home(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -118,6 +120,8 @@ class Skill(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -132,6 +136,8 @@ class Transport(Base):
     price = Column(Integer, nullable=False)
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name

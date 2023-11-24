@@ -21,6 +21,13 @@ class HarmSchemaMixin:
     health_harm_max: int
 
 
+class BuySchemaMixin:
+    name: str
+    description: str | None
+    price: int
+    currency_id: int | None
+
+
 class CurrencyBase(BaseModel):
     name: str
 
@@ -77,10 +84,8 @@ class PlayerBase(BaseModel):
         from_attributes = True
 
 
-class HomeBase(BaseModel):
-    name: str
-    description: str | None
-    price: int
+class HomeBase(BaseModel, BuySchemaMixin):
+    ...
 
     class Config:
         from_attributes = True
@@ -98,10 +103,8 @@ class UpdateHome(HomeBase):
     pass
 
 
-class SkillBase(BaseModel):
-    name: str
-    price: int
-    description: str | None
+class SkillBase(BaseModel, BuySchemaMixin):
+    ...
 
     class Config:
         from_attributes = True
@@ -119,11 +122,8 @@ class UpdateSkill(SkillBase):
     pass
 
 
-class TransportBase(BaseModel):
-    name: str
-    description: str | None
-    price: int
-    skill_id: int
+class TransportBase(BaseModel, BuySchemaMixin):
+    skill_id: int | None
 
     class Config:
         from_attributes = True
