@@ -216,7 +216,8 @@ class Game:
         :return:
         """
         authority_benefit = None
-        if hasattr(self.object_model, "authority_benefit_min") and hasattr(self.object_model, "authority_benefit_max"):
+        if hasattr(self.object_model, "authority_benefit_min") \
+                and hasattr(self.object_model, "authority_benefit_max"):
             authority_benefit = self._get_random_value(
                 min_value=self.object_model.authority_benefit_min,
                 max_value=self.object_model.authority_benefit_max
