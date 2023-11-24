@@ -217,6 +217,8 @@ class FoodBase(BaseModel, BenefitSchemaMixin):
     name: str
     description: str | None
     price: int
+    income_min: int | None
+    income_max: int | None
 
     class Config:
         from_attributes = True
@@ -238,6 +240,8 @@ class HealthBase(BaseModel, BenefitSchemaMixin):
     name: str
     description: str | None
     price: int
+    income_min: int | None
+    income_max: int | None
 
     class Config:
         from_attributes = True
