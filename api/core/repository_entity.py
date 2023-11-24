@@ -3,7 +3,7 @@ from datetime import datetime
 from game import models, schemas
 from sqlalchemy import select, insert
 
-from typing import Union
+from typing import List, Union
 
 
 async def init_db() -> None:
@@ -44,6 +44,30 @@ class Base:
 
     def __init__(self, session):
         self.session = session
+
+    async def get_objects_list(
+            self
+    ) -> List[Union[
+            models.Skill,
+            models.Currency,
+            models.Balance,
+            models.Home,
+            models.Skill,
+            models.Transport,
+            models.StreetAction,
+            models.Work,
+            models.Food,
+            models.Health,
+            models.Leisure,
+            models.Business
+        ]
+    ]:
+        """ Base repository method for get objects list
+        :return:
+        """
+        query = select(self.model)
+        result = await self.session.execute(query)
+        return self._all(result)
 
     async def get_by_id(
             self,
@@ -164,10 +188,11 @@ class PlayerEntity(Base):
 class CurrencyEntity(Base):
     model = models.Currency
 
-    async def get_currency_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Currency]:
+        """ Get currency list
+        :return:
+        """
+        return await super(CurrencyEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -210,10 +235,11 @@ class CurrencyEntity(Base):
 class BalanceEntity(Base):
     model = models.Balance
 
-    async def get_balance_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Balance]:
+        """ Get balance list
+        :return:
+        """
+        return await super(BalanceEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -256,10 +282,11 @@ class BalanceEntity(Base):
 class HomeEntity(Base):
     model = models.Home
 
-    async def get_home_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Home]:
+        """ Get home list
+        :return:
+        """
+        return await super(HomeEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -302,10 +329,11 @@ class HomeEntity(Base):
 class SkillEntity(Base):
     model = models.Skill
 
-    async def get_skill_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Skill]:
+        """ Get skill list
+        :return:
+        """
+        return await super(SkillEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -348,10 +376,11 @@ class SkillEntity(Base):
 class TransportEntity(Base):
     model = models.Transport
 
-    async def get_transport_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Transport]:
+        """ Get transport list
+        :return:
+        """
+        return await super(TransportEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -394,10 +423,11 @@ class TransportEntity(Base):
 class StreetActionEntity(Base):
     model = models.StreetAction
 
-    async def get_street_action_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.StreetAction]:
+        """ Get street action list
+        :return:
+        """
+        return await super(StreetActionEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -440,10 +470,11 @@ class StreetActionEntity(Base):
 class WorkEntity(Base):
     model = models.Work
 
-    async def get_work_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Work]:
+        """ Get work list
+        :return:
+        """
+        return await super(WorkEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -486,10 +517,11 @@ class WorkEntity(Base):
 class FoodEntity(Base):
     model = models.Food
 
-    async def get_food_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Food]:
+        """ Get food list
+        :return:
+        """
+        return await super(FoodEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -532,10 +564,11 @@ class FoodEntity(Base):
 class HealthEntity(Base):
     model = models.Health
 
-    async def get_health_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Health]:
+        """ Get health list
+        :return:
+        """
+        return await super(HealthEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -578,10 +611,11 @@ class HealthEntity(Base):
 class LeisureEntity(Base):
     model = models.Leisure
 
-    async def get_leisure_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Leisure]:
+        """ Get leisure list
+        :return:
+        """
+        return await super(LeisureEntity, self).get_objects_list()
 
     async def get_by_id(
             self,
@@ -624,10 +658,11 @@ class LeisureEntity(Base):
 class BusinessEntity(Base):
     model = models.Business
 
-    async def get_business_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Business]:
+        """ Get business list
+        :return:
+        """
+        return await super(BusinessEntity, self).get_objects_list()
 
     async def get_by_id(
             self,

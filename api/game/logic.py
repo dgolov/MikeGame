@@ -217,7 +217,7 @@ class Home(Game):
         home: models.Home | None = await self._get_by_id(object_id=home_id)
 
     async def get_home_list(self) -> List[models.Home]:
-        return await self.repository.get_home_list()
+        return await self.repository.get_objects_list()
 
 
 class Skill(Game):
@@ -245,7 +245,7 @@ class Transport(Game):
         transport: models.Transport | None = await self._get_by_id(object_id=transport_id)
 
     async def get_transport_list(self) -> List[models.Transport]:
-        return await self.repository.get_transport_list()
+        return await self.repository.get_objects_list()
 
 
 class StreetAction(Game):
@@ -267,7 +267,7 @@ class StreetAction(Game):
         await self.session.commit()
 
     async def get_street_action_list(self) -> List[models.StreetAction]:
-        return await self.repository.get_street_action_list()
+        return await self.repository.get_objects_list()
 
 
 class Work(Game):
@@ -289,7 +289,7 @@ class Work(Game):
         await self.session.commit()
 
     async def get_work_list(self) -> List[models.Work]:
-        return await self.repository.get_work_list()
+        return await self.repository.get_objects_list()
 
 
 class Food(Game):
@@ -311,7 +311,7 @@ class Food(Game):
         await self.session.commit()
 
     async def get_food_list(self) -> List[models.Food]:
-        return await self.repository.get_food_list()
+        return await self.repository.get_objects_list()
 
 
 class Health(Game):
@@ -333,7 +333,7 @@ class Health(Game):
         await self.session.commit()
 
     async def get_health_list(self) -> List[models.Health]:
-        return await self.repository.get_health_list()
+        return await self.repository.get_objects_list()
 
 
 class Leisure(Game):
@@ -355,7 +355,7 @@ class Leisure(Game):
         await self.session.commit()
 
     async def get_leisure_list(self) -> List[models.Leisure]:
-        return await self.repository.get_leisure_list()
+        return await self.repository.get_objects_list()
 
 
 class Business(Game):
@@ -369,4 +369,4 @@ class Business(Game):
         business: models.Business | None = await self._get_by_id(object_id=business_id)
 
     async def get_business_list(self) -> List[models.Business]:
-        return await self.repository.get_business_list()
+        return await self.repository.get_objects_list()
