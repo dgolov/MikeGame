@@ -77,20 +77,6 @@ class PlayerBase(BaseModel):
         from_attributes = True
 
 
-class PlayerSchema(PlayerBase):
-    user_id: int
-    id: int
-    balances: List[BalanceSchema]
-
-
-class CreatePlayer(PlayerBase):
-    user_id: int
-
-
-class UpdatePlayer(PlayerBase):
-    pass
-
-
 class HomeBase(BaseModel):
     name: str
     description: str | None
@@ -308,4 +294,22 @@ class CreateBusiness(BusinessBase):
 
 
 class UpdateBusiness(BusinessBase):
+    pass
+
+
+class PlayerSchema(PlayerBase):
+    user_id: int
+    id: int
+    balances: List[BalanceSchema]
+    home_list: List[HomeSchema]
+    skills: List[SkillSchema]
+    transport_list: List[TransportSchema]
+    business_list: List[BusinessSchema]
+
+
+class CreatePlayer(PlayerBase):
+    user_id: int
+
+
+class UpdatePlayer(PlayerBase):
     pass
