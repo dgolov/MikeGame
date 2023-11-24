@@ -140,7 +140,7 @@ async def buy_transport(
         )
     except exceptions.AlreadyExistError as e:
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_409_CONFLICT,
             content={"message": str(e)}
         )
     except exceptions.PlayerException:
