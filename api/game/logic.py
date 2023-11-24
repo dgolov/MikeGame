@@ -91,20 +91,20 @@ class Game:
         """ Set harm for player
         :return:
         """
-        hunger_harm = self._get_random_value(
+        hunger_harm: int = self._get_random_value(
             min_value=self.object_model.hunger_harm_min,
             max_value=self.object_model.hunger_harm_max
         )
-        rest_harm = self._get_random_value(
+        rest_harm: int = self._get_random_value(
             min_value=self.object_model.rest_harm_min,
             max_value=self.object_model.rest_harm_max
         )
-        health_harm = self._get_random_value(
+        health_harm: int = self._get_random_value(
             min_value=self.object_model.health_harm_min,
             max_value=self.object_model.health_harm_max
         )
 
-        authority_benefit = self._get_authority_benefit()
+        authority_benefit: int = self._get_authority_benefit()
 
         if hunger_harm:
             self.player.hunger -= hunger_harm
@@ -121,20 +121,20 @@ class Game:
         """ Set benefit for player
         :return:
         """
-        hunger_benefit = self._get_random_value(
+        hunger_benefit: int = self._get_random_value(
             min_value=self.object_model.hunger_benefit_min,
             max_value=self.object_model.hunger_benefit_max
         )
-        rest_benefit = self._get_random_value(
+        rest_benefit: int = self._get_random_value(
             min_value=self.object_model.rest_benefit_min,
             max_value=self.object_model.rest_benefit_max
         )
-        health_benefit = self._get_random_value(
+        health_benefit: int = self._get_random_value(
             min_value=self.object_model.health_benefit_min,
             max_value=self.object_model.health_benefit_max
         )
 
-        authority_benefit = self._get_authority_benefit()
+        authority_benefit: int = self._get_authority_benefit()
 
         if hunger_benefit:
             self.player.hunger += hunger_benefit
@@ -156,7 +156,7 @@ class Game:
             amount = -self.object_model.price
             mode = "decrement"
         else:
-            amount = self._get_random_value(
+            amount: int = self._get_random_value(
                 min_value=self.object_model.income_min,
                 max_value=self.object_model.income_max
             )
@@ -204,14 +204,14 @@ class Game:
         }
 
         object_name = self.object_model.__class__.__name__
-        player_list = player_list_map.get(object_name)
+        player_list = player_list_map.get(object_name, None)
         if self.object_model in player_list:
             logger.warning(
                 f"{self.user.email} {object_name} {self.object_model} already exists"
             )
             raise exceptions.AlreadyExistError(f"{object_name} already exists")
 
-    def _get_authority_benefit(self):
+    def _get_authority_benefit(self) -> int | None:
         """ Check authority_benefit fields and get random value
         :return:
         """
