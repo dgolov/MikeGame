@@ -1,7 +1,6 @@
 from core import repository_entity
 from config import logger
-from game import models
-from game.exceptions import NotFoundException, PlayerException, NoMoneyError
+from game import models, exceptions
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Union
 from users.models import User
@@ -16,7 +15,7 @@ class Game:
         def wrapper(self, *args, **kwargs):
             self.player = self.get_player()
             if not self.player:
-                raise PlayerException(f"Player is not found")
+                raise exceptions.PlayerException(f"Player is not found")
             result = func(self, *args, **kwargs)
             return result
 
@@ -167,7 +166,32 @@ class Game:
                 f"{self.user.email} does not have enough money "
                 f"to purchase {purchased_object} (id - {purchased_object.id})"
             )
-            raise NoMoneyError("You do not have enough money to make this purchase")
+            raise exceptions.NoMoneyError("You do not have enough money to make this purchase")
+
+    def _check_object_in_player(
+            self,
+            object_model: Union[
+                models.Transport, models.Home, models.Skill, models.Business
+            ]
+    ) -> None:
+        """ Checks if the player has an object
+        :param object_model:
+        :return:
+        """
+        player_list_map = {
+            "Transport": self.player.transport_list,
+            "Home": self.player.home_list,
+            "Skill": self.player.skills,
+            "Business": self.player.business_list,
+        }
+
+        object_name = object_model.__class__.__name__
+        player_list = player_list_map.get(object_name)
+        if object_model in player_list:
+            logger.warning(
+                f"{self.user.email} {object_name} {object_model} (id - {object_model.id}) already exists"
+            )
+            raise exceptions.AlreadyExistError(f"{object_name} already exists")
 
     def _get_authority_benefit(self, action):
         """ Check authority_benefit fields and get random value
@@ -273,13 +297,11 @@ class Transport(Game):
     async def buy(self, transport_id: int) -> None:
         logger.debug(f"{self.user.email} Buy transport id {transport_id}")
         transport: models.Transport | None = await self._get_by_id(object_id=transport_id)
-        if transport in self.player.transport_list:
-            logger.warning(
-                f"Transport {transport} (id - {transport.id}) already exists in "
-                f"player ({self.player}) transport list (player id - {self.player.id})"
-            )
-            return
 
+        if not transport:
+            raise exceptions.NotFoundException(f"Transport {transport_id} is not found")
+
+        self._check_object_in_player(object_model=transport)
         self.update_balance(action=transport)
         self.player.transport_list.append(transport)
         self.next_day()
@@ -300,9 +322,9 @@ class StreetAction(Game):
         action: models.StreetAction | None = await self._get_by_id(object_id=action_id)
 
         if not action:
-            raise NotFoundException(f"Action {action_id} is not found")
+            raise exceptions.NotFoundException(f"Action {action_id} is not found")
 
-        self.set_player_harm( harm_action=action)
+        self.set_player_harm(harm_action=action)
         self.update_balance(action=action)
         self.next_day()
         await self.session.commit()
@@ -322,7 +344,7 @@ class Work(Game):
         work: models.Work | None = await self._get_by_id(object_id=work_id)
 
         if not work:
-            raise NotFoundException(f"Work is not found")
+            raise exceptions.NotFoundException(f"Work is not found")
 
         self.set_player_harm(harm_action=work)
         self.update_balance(action=work)
@@ -344,7 +366,7 @@ class Food(Game):
         food: models.Food | None = await self._get_by_id(object_id=food_id)
 
         if not food:
-            raise NotFoundException(f"Food is not found")
+            raise exceptions.NotFoundException(f"Food is not found")
 
         self.set_player_benefit(benefit_action=food)
         self.update_balance(action=food)
@@ -366,7 +388,7 @@ class Health(Game):
         health: models.Health | None = await self._get_by_id(object_id=health_id)
 
         if not health:
-            raise NotFoundException(f"Health is not found")
+            raise exceptions.NotFoundException(f"Health is not found")
 
         self.set_player_benefit(benefit_action=health)
         self.update_balance(action=health)
@@ -388,7 +410,7 @@ class Leisure(Game):
         leisure: models.Leisure | None = await self._get_by_id(object_id=leisure_id)
 
         if not leisure:
-            raise NotFoundException(f"Leisure is not found")
+            raise exceptions.NotFoundException(f"Leisure is not found")
 
         self.set_player_benefit(benefit_action=leisure)
         self.update_balance(action=leisure)

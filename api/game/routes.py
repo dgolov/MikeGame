@@ -2,8 +2,7 @@ from config import logger
 from core.engine import get_async_session
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-from game import logic, schemas
-from game.exceptions import NotFoundException, PlayerException, NoMoneyError
+from game import logic, schemas, exceptions
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from users.models import User
@@ -134,17 +133,22 @@ async def buy_transport(
     transport_logic = logic.Transport(session=session, user=user)
     try:
         await transport_logic.buy(transport_id=data.id)
-    except NotFoundException:
+    except exceptions.NotFoundException:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Transport not found"}
         )
-    except PlayerException:
+    except exceptions.AlreadyExistError as e:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": str(e)}
+        )
+    except exceptions.PlayerException:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
         )
-    except NoMoneyError as e:
+    except exceptions.NoMoneyError as e:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": str(e)}
@@ -180,12 +184,12 @@ async def perform_street_action(
     street_logic = logic.StreetAction(session=session, user=user)
     try:
         await street_logic.run(action_id=data.id)
-    except NotFoundException:
+    except exceptions.NotFoundException:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Action not found"}
         )
-    except PlayerException:
+    except exceptions.PlayerException:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
@@ -221,12 +225,12 @@ async def perform_work_action(
     work_logic = logic.Work(session=session, user=user)
     try:
         await work_logic.run(work_id=data.id)
-    except NotFoundException:
+    except exceptions.NotFoundException:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Work not found"}
         )
-    except PlayerException:
+    except exceptions.PlayerException:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
@@ -262,12 +266,12 @@ async def buy_food(
     food_logic = logic.Food(session=session, user=user)
     try:
         await food_logic.buy(food_id=data.id)
-    except NotFoundException:
+    except exceptions.NotFoundException:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Food not found"}
         )
-    except PlayerException:
+    except exceptions.PlayerException:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
@@ -303,12 +307,12 @@ async def buy_health(
     health_logic = logic.Health(session=session, user=user)
     try:
         await health_logic.buy(food_id=data.id)
-    except NotFoundException:
+    except exceptions.NotFoundException:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Health not found"}
         )
-    except PlayerException:
+    except exceptions.PlayerException:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
@@ -344,12 +348,12 @@ async def buy_leisure(
     leisure_logic = logic.Leisure(session=session, user=user)
     try:
         await leisure_logic.buy(food_id=data.id)
-    except NotFoundException:
+    except exceptions.NotFoundException:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "Leisure not found"}
         )
-    except PlayerException:
+    except exceptions.PlayerException:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
