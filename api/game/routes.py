@@ -2,8 +2,7 @@ from config import logger
 from core.engine import get_async_session
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-from game import logic, schemas
-from game.exceptions import NotFoundException, PlayerException
+from game import logic, schemas, services
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from users.models import User
@@ -77,12 +76,14 @@ async def get_skills_list(
 
 @router.post("/skills")
 async def learn_skill(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Learn skill endpoint by player id
     """
-    return {"test": "ok"}
+    skill_logic = logic.Skill(session=session, user=user)
+    return await services.processing_by_item_request(game_logic=skill_logic, data=data)
 
 
 @router.get("/homes", response_model=List[schemas.HomeSchema])
@@ -101,12 +102,14 @@ async def get_homes_list(
 
 @router.post("/homes")
 async def buy_home(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy home by player id endpoint
     """
-    return {"test": "ok"}
+    home_logic = logic.Home(session=session, user=user)
+    return await services.processing_by_item_request(game_logic=home_logic, data=data)
 
 
 @router.get("/transport", response_model=List[schemas.TransportSchema])
@@ -125,12 +128,14 @@ async def get_transport_list(
 
 @router.post("/transport")
 async def buy_transport(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy transport by player id endpoint
     """
-    return {"test": "ok"}
+    transport_logic = logic.Transport(session=session, user=user)
+    return await services.processing_by_item_request(game_logic=transport_logic, data=data)
 
 
 @router.get("/street", response_model=List[schemas.StreetActionSchema])
@@ -149,29 +154,14 @@ async def get_street_actions_list(
 
 @router.post("/street")
 async def perform_street_action(
-        data: schemas.PerformStreetActionSchema,
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """ Perform street action by player id endpoint
     """
     street_logic = logic.StreetAction(session=session, user=user)
-    try:
-        await street_logic.run(action_id=data.id)
-    except NotFoundException:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Action not found"}
-        )
-    except PlayerException:
-        return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content={"message": "Player not found"}
-        )
-    return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Ok"}
-        )
+    await services.processing_action_request(game_logic=street_logic, data=data)
 
 
 @router.get("/work", response_model=List[schemas.WorkSchema])
@@ -190,29 +180,14 @@ async def get_work_action_list(
 
 @router.post("/work")
 async def perform_work_action(
-        data: schemas.PerformStreetActionSchema,
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     """ Perform work action by player id endpoint
     """
     work_logic = logic.Work(session=session, user=user)
-    try:
-        await work_logic.run(work_id=data.id)
-    except NotFoundException:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Work not found"}
-        )
-    except PlayerException:
-        return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content={"message": "Player not found"}
-        )
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"message": "Ok"}
-    )
+    return await services.processing_action_request(game_logic=work_logic, data=data)
 
 
 @router.get("/food", response_model=List[schemas.FoodSchema])
@@ -231,12 +206,14 @@ async def get_food_list(
 
 @router.post("/food")
 async def buy_food(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy food by player id endpoint
     """
-    return {"test": "ok"}
+    food_logic = logic.Food(session=session, user=user)
+    return await services.processing_buy_services_request(game_logic=food_logic, data=data)
 
 
 @router.get("/health", response_model=List[schemas.HealthSchema])
@@ -255,12 +232,14 @@ async def get_health_list(
 
 @router.post("/health")
 async def buy_health(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy health by player id endpoint
     """
-    return {"test": "ok"}
+    health_logic = logic.Health(session=session, user=user)
+    return await services.processing_buy_services_request(game_logic=health_logic, data=data)
 
 
 @router.get("/leisure", response_model=List[schemas.LeisureSchema])
@@ -279,12 +258,14 @@ async def get_leisure_list(
 
 @router.post("/leisure")
 async def buy_leisure(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy leisure by player id endpoint
     """
-    return {"test": "ok"}
+    leisure_logic = logic.Leisure(session=session, user=user)
+    return await services.processing_buy_services_request(game_logic=leisure_logic, data=data)
 
 
 @router.get("/business", response_model=List[schemas.BusinessSchema])
@@ -303,9 +284,11 @@ async def get_business_list(
 
 @router.post("/business")
 async def buy_business(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy business by player id endpoint
     """
-    return {"test": "ok"}
+    business_logic = logic.Business(session=session, user=user)
+    return await services.processing_by_item_request(game_logic=business_logic, data=data)

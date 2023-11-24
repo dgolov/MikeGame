@@ -106,6 +106,8 @@ class Home(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -118,6 +120,8 @@ class Skill(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -132,6 +136,8 @@ class Transport(Base):
     price = Column(Integer, nullable=False)
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -159,6 +165,8 @@ class StreetAction(Base):
     rest_harm_max = Column(Integer)
     health_harm_min = Column(Integer)
     health_harm_max = Column(Integer)
+    authority_benefit_min = Column(Integer)
+    authority_benefit_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -198,12 +206,16 @@ class Food(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
+    currency = relationship("Currency", lazy="selectin")
     hunger_benefit_min = Column(Integer)
     hunger_benefit_max = Column(Integer)
     rest_benefit_min = Column(Integer)
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    income_min = Column(Integer)
+    income_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -216,12 +228,16 @@ class Health(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
+    currency = relationship("Currency", lazy="selectin")
     hunger_benefit_min = Column(Integer)
     hunger_benefit_max = Column(Integer)
     rest_benefit_min = Column(Integer)
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    income_min = Column(Integer)
+    income_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -234,6 +250,8 @@ class Leisure(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
+    currency = relationship("Currency", lazy="selectin")
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
     hunger_benefit_min = Column(Integer)
@@ -242,6 +260,8 @@ class Leisure(Base):
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    authority_benefit_min = Column(Integer)
+    authority_benefit_max = Column(Integer)
 
     def __str__(self):
         return self.name

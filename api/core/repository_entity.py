@@ -3,6 +3,8 @@ from datetime import datetime
 from game import models, schemas
 from sqlalchemy import select, insert
 
+from typing import List, Union
+
 
 async def init_db() -> None:
     """ Initialisation empty db
@@ -38,8 +40,55 @@ async def init_db() -> None:
 
 
 class Base:
+    model = None
+
     def __init__(self, session):
         self.session = session
+
+    async def get_objects_list(
+            self
+    ) -> List[Union[
+            models.Skill,
+            models.Currency,
+            models.Balance,
+            models.Home,
+            models.Skill,
+            models.Transport,
+            models.StreetAction,
+            models.Work,
+            models.Food,
+            models.Health,
+            models.Leisure,
+            models.Business
+        ]
+    ]:
+        """ Base repository method for get objects list
+        :return:
+        """
+        query = select(self.model)
+        result = await self.session.execute(query)
+        return self._all(result)
+
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> Union[
+            models.Skill,
+            models.Currency,
+            models.Balance,
+            models.Home,
+            models.Skill,
+            models.Transport,
+            models.StreetAction,
+            models.Work,
+            models.Food,
+            models.Health,
+            models.Leisure,
+            models.Business
+    ]:
+        query = select(self.model).filter(self.model.id == object_id)
+        result = await self.session.execute(query)
+        return self._first(result)
 
     @staticmethod
     def _all(result):
@@ -139,15 +188,21 @@ class PlayerEntity(Base):
 class CurrencyEntity(Base):
     model = models.Currency
 
-    async def get_currency_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Currency]:
+        """ Get currency list
+        :return:
+        """
+        return await super(CurrencyEntity, self).get_objects_list()
 
-    async def get_currency_by_id(self, currency_id: int) -> models.Currency:
-        query = select(self.model).filter(self.model.id == currency_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Currency:
+        """ Get currency by id
+        :param object_id: currency_id
+        :return: Currency db object
+        """
+        return await super(CurrencyEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
         if not isinstance(data, dict):
@@ -180,15 +235,21 @@ class CurrencyEntity(Base):
 class BalanceEntity(Base):
     model = models.Balance
 
-    async def get_balance_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Balance]:
+        """ Get balance list
+        :return:
+        """
+        return await super(BalanceEntity, self).get_objects_list()
 
-    async def get_balance_by_id(self, balance_id: int) -> models.Balance:
-        query = select(self.model).filter(self.model.id == balance_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Balance:
+        """ Get balance by id
+        :param object_id: balance_id
+        :return: Balance db object
+        """
+        return await super(BalanceEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateBalance | dict) -> int:
         if not isinstance(data, dict):
@@ -221,15 +282,21 @@ class BalanceEntity(Base):
 class HomeEntity(Base):
     model = models.Home
 
-    async def get_home_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Home]:
+        """ Get home list
+        :return:
+        """
+        return await super(HomeEntity, self).get_objects_list()
 
-    async def get_home_by_id(self, home_id: int) -> models.Home:
-        query = select(self.model).filter(self.model.id == home_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Home:
+        """ Get home by id
+        :param object_id: home_id
+        :return: Home db object
+        """
+        return await super(HomeEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateHome | dict) -> int:
         if not isinstance(data, dict):
@@ -262,15 +329,21 @@ class HomeEntity(Base):
 class SkillEntity(Base):
     model = models.Skill
 
-    async def get_skill_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Skill]:
+        """ Get skill list
+        :return:
+        """
+        return await super(SkillEntity, self).get_objects_list()
 
-    async def get_skill_by_id(self, skill_id: int) -> models.Skill:
-        query = select(self.model).filter(self.model.id == skill_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Skill:
+        """ Get skill by id
+        :param object_id: skill_id
+        :return: Skill db object
+        """
+        return await super(SkillEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateSkill | dict) -> int:
         if not isinstance(data, dict):
@@ -303,15 +376,21 @@ class SkillEntity(Base):
 class TransportEntity(Base):
     model = models.Transport
 
-    async def get_transport_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Transport]:
+        """ Get transport list
+        :return:
+        """
+        return await super(TransportEntity, self).get_objects_list()
 
-    async def get_transport_by_id(self, transport_id: int) -> models.Transport:
-        query = select(self.model).filter(self.model.id == transport_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Transport:
+        """ Get transport by id
+        :param object_id: transport_id
+        :return: Transport db object
+        """
+        return await super(TransportEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateCurrency | dict) -> int:
         if not isinstance(data, dict):
@@ -344,15 +423,21 @@ class TransportEntity(Base):
 class StreetActionEntity(Base):
     model = models.StreetAction
 
-    async def get_street_action_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.StreetAction]:
+        """ Get street action list
+        :return:
+        """
+        return await super(StreetActionEntity, self).get_objects_list()
 
-    async def get_street_action_by_id(self, street_action_id: int) -> models.StreetAction:
-        query = select(self.model).filter(self.model.id == street_action_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.StreetAction:
+        """ Get street action by id
+        :param object_id: street_action_id
+        :return: StreetAction db object
+        """
+        return await super(StreetActionEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateStreetAction | dict) -> int:
         if not isinstance(data, dict):
@@ -385,15 +470,21 @@ class StreetActionEntity(Base):
 class WorkEntity(Base):
     model = models.Work
 
-    async def get_work_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Work]:
+        """ Get work list
+        :return:
+        """
+        return await super(WorkEntity, self).get_objects_list()
 
-    async def get_work_by_id(self, work_id: int) -> models.Work:
-        query = select(self.model).filter(self.model.id == work_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Work:
+        """ Get work by id
+        :param object_id: work_id
+        :return: Work db object
+        """
+        return await super(WorkEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateWork | dict) -> int:
         if not isinstance(data, dict):
@@ -426,15 +517,21 @@ class WorkEntity(Base):
 class FoodEntity(Base):
     model = models.Food
 
-    async def get_food_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Food]:
+        """ Get food list
+        :return:
+        """
+        return await super(FoodEntity, self).get_objects_list()
 
-    async def get_food_by_id(self, food_id: int) -> models.Food:
-        query = select(self.model).filter(self.model.id == food_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Food:
+        """ Get food by id
+        :param object_id: food_id
+        :return: Food db object
+        """
+        return await super(FoodEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateFood | dict) -> int:
         if not isinstance(data, dict):
@@ -467,15 +564,21 @@ class FoodEntity(Base):
 class HealthEntity(Base):
     model = models.Health
 
-    async def get_health_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Health]:
+        """ Get health list
+        :return:
+        """
+        return await super(HealthEntity, self).get_objects_list()
 
-    async def get_health_by_id(self, health_id: int) -> models.Health:
-        query = select(self.model).filter(self.model.id == health_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Health:
+        """ Get health by id
+        :param object_id: health_id
+        :return: Health db object
+        """
+        return await super(HealthEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateHealth | dict) -> int:
         if not isinstance(data, dict):
@@ -508,15 +611,21 @@ class HealthEntity(Base):
 class LeisureEntity(Base):
     model = models.Leisure
 
-    async def get_leisure_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Leisure]:
+        """ Get leisure list
+        :return:
+        """
+        return await super(LeisureEntity, self).get_objects_list()
 
-    async def get_leisure_by_id(self, leisure_id: int) -> models.Leisure:
-        query = select(self.model).filter(self.model.id == leisure_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Leisure:
+        """ Get leisure by id
+        :param object_id: leisure_id
+        :return: Leisure db object
+        """
+        return await super(LeisureEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateLeisure | dict) -> int:
         if not isinstance(data, dict):
@@ -549,15 +658,21 @@ class LeisureEntity(Base):
 class BusinessEntity(Base):
     model = models.Business
 
-    async def get_business_list(self):
-        query = select(self.model)
-        result = await self.session.execute(query)
-        return self._all(result)
+    async def get_objects_list(self) -> List[models.Business]:
+        """ Get business list
+        :return:
+        """
+        return await super(BusinessEntity, self).get_objects_list()
 
-    async def get_business_by_id(self, business_id: int) -> models.Business:
-        query = select(self.model).filter(self.model.id == business_id)
-        result = await self.session.execute(query)
-        return self._first(result)
+    async def get_by_id(
+            self,
+            object_id: int
+    ) -> models.Business:
+        """ Get business by id
+        :param object_id: business_id
+        :return: Business db object
+        """
+        return await super(BusinessEntity, self).get_by_id(object_id)
 
     async def create(self, data: schemas.CreateBusiness | dict) -> int:
         if not isinstance(data, dict):
