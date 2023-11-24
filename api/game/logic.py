@@ -1,7 +1,7 @@
 from core import repository_entity
 from config import logger
 from game import models
-from game.exceptions import NotFoundException, PlayerException
+from game.exceptions import NotFoundException, PlayerException, NoMoneyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Union
 from users.models import User
@@ -243,6 +243,27 @@ class Transport(Game):
     async def buy(self, transport_id: int) -> None:
         logger.debug(f"{self.user.email} Buy transport id {transport_id}")
         transport: models.Transport | None = await self._get_by_id(object_id=transport_id)
+        if transport in self.player.transport_list:
+            logger.warning(
+                f"Transport {transport} (id - {transport.id}) already exists in "
+                f"player ({self.player}) transport list (player id - {self.player.id})"
+            )
+            return
+
+        for balance in self.player.balances:
+            if balance.currency_id == transport.currency_id:
+                if balance.amount < transport.price:
+                    logger.warning(
+                        f"{self.user.email} does not have enough money to purchase {transport} (id - {transport.id})"
+                    )
+                    raise NoMoneyError("You does not have enough money to purchase this transport")
+                self.player.transport_list.append(transport)
+                balance.amount -= transport.price
+                logger.info(
+                    f"Transport {transport} (id - {transport.id}) added to {self.user.email} "
+                    f"transport list (player id - {self.player.id}) successfully"
+                )
+                await self.session.commit()
 
     async def get_transport_list(self) -> List[models.Transport]:
         return await self.repository.get_objects_list()
@@ -259,7 +280,7 @@ class StreetAction(Game):
         action: models.StreetAction | None = await self._get_by_id(object_id=action_id)
 
         if not action:
-            raise NotFoundException(f"Action is not found")
+            raise NotFoundException(f"Action {action_id} is not found")
 
         self.set_player_harm( harm_action=action)
         self.update_balance(action=action)

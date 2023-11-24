@@ -3,7 +3,7 @@ from core.engine import get_async_session
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from game import logic, schemas
-from game.exceptions import NotFoundException, PlayerException
+from game.exceptions import NotFoundException, PlayerException, NoMoneyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from users.models import User
@@ -125,12 +125,34 @@ async def get_transport_list(
 
 @router.post("/transport")
 async def buy_transport(
+        data: schemas.PerformActionSchema,
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> JSONResponse:
     """ Buy transport by player id endpoint
     """
-    return {"test": "ok"}
+    transport_logic = logic.Transport(session=session, user=user)
+    try:
+        await transport_logic.buy(transport_id=data.id)
+    except NotFoundException:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "Transport not found"}
+        )
+    except PlayerException:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Player not found"}
+        )
+    except NoMoneyError as e:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": str(e)}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Ok"}
+    )
 
 
 @router.get("/street", response_model=List[schemas.StreetActionSchema])
