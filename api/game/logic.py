@@ -26,8 +26,12 @@ class Game:
         self.user = user
         self.player = None
         self.repository = None
+        self.object_model = None
 
     def next_day(self) -> None:
+        """ Set next day
+        :return:
+        """
         logger.debug(f"{self.user.email} Set next day")
         self.player.day += 1
         if 365 % self.player.day == 0:
@@ -35,33 +39,72 @@ class Game:
         self.session.add(self.player)
 
     def get_player(self) -> models.Player | None:
+        """ Get item player by current user
+        :return:
+        """
         try:
             return self.user.players[-1]
         except IndexError:
             logger.error(f"Player is not exist for user - {self.user.email}")
 
-    def set_player_harm(
-            self,
-            harm_action: models.StreetAction | models.Work
-    ) -> None:
+    async def buy_item(self) -> None:
+        """ Buy item (Transport, Home, Business, Skill)
+        :return:
+        """
+        if not self.object_model:
+            raise exceptions.NotFoundException(
+                f"{self.object_model.__class__.__name__} {self.object_model} is not found"
+            )
+        self._check_object_in_player()
+        self.update_balance()
+        self.player.transport_list.append(self.object_model)
+        self.next_day()
+        await self.session.commit()
+
+    async def buy_service(self) -> None:
+        """ Buy service (Health, Food, Leisure)
+        :return:
+        """
+        if not self.object_model:
+            raise exceptions.NotFoundException(
+                f"{self.object_model.__class__.__name__} is not found"
+            )
+        self.set_player_benefit()
+        self.update_balance()
+        self.next_day()
+        await self.session.commit()
+
+    async def perform_action(self) -> None:
+        """ Perform action (Work, Street action)
+        :return:
+        """
+        if not self.object_model:
+            raise exceptions.NotFoundException(
+                f"{self.object_model.__class__.__name__} is not found"
+            )
+        self.set_player_harm()
+        self.update_balance()
+        self.next_day()
+        await self.session.commit()
+
+    def set_player_harm(self) -> None:
         """ Set harm for player
-        :param harm_action: harm action
         :return:
         """
         hunger_harm = self._get_random_value(
-            min_value=harm_action.hunger_harm_min,
-            max_value=harm_action.hunger_harm_max
+            min_value=self.object_model.hunger_harm_min,
+            max_value=self.object_model.hunger_harm_max
         )
         rest_harm = self._get_random_value(
-            min_value=harm_action.rest_harm_min,
-            max_value=harm_action.rest_harm_max
+            min_value=self.object_model.rest_harm_min,
+            max_value=self.object_model.rest_harm_max
         )
         health_harm = self._get_random_value(
-            min_value=harm_action.health_harm_min,
-            max_value=harm_action.health_harm_max
+            min_value=self.object_model.health_harm_min,
+            max_value=self.object_model.health_harm_max
         )
 
-        authority_benefit = self._get_authority_benefit(action=harm_action)
+        authority_benefit = self._get_authority_benefit()
 
         if hunger_harm:
             self.player.hunger -= hunger_harm
@@ -74,28 +117,24 @@ class Game:
 
         self.session.add(self.player)
 
-    def set_player_benefit(
-            self,
-            benefit_action: models.Health | models.Food | models.Leisure
-    ) -> None:
+    def set_player_benefit(self) -> None:
         """ Set benefit for player
-        :param benefit_action: benefit action
         :return:
         """
         hunger_benefit = self._get_random_value(
-            min_value=benefit_action.hunger_benefit_min,
-            max_value=benefit_action.hunger_benefit_max
+            min_value=self.object_model.hunger_benefit_min,
+            max_value=self.object_model.hunger_benefit_max
         )
         rest_benefit = self._get_random_value(
-            min_value=benefit_action.rest_benefit_min,
-            max_value=benefit_action.rest_benefit_max
+            min_value=self.object_model.rest_benefit_min,
+            max_value=self.object_model.rest_benefit_max
         )
         health_benefit = self._get_random_value(
-            min_value=benefit_action.health_benefit_min,
-            max_value=benefit_action.health_benefit_max
+            min_value=self.object_model.health_benefit_min,
+            max_value=self.object_model.health_benefit_max
         )
 
-        authority_benefit = self._get_authority_benefit(action=benefit_action)
+        authority_benefit = self._get_authority_benefit()
 
         if hunger_benefit:
             self.player.hunger += hunger_benefit
@@ -108,38 +147,23 @@ class Game:
 
         self.session.add(self.player)
 
-    def update_balance(
-            self,
-            action: Union[
-                models.Food,
-                models.Health,
-                models.Transport,
-                models.Home,
-                models.Home,
-                models.Skill,
-                models.Work,
-                models.Leisure,
-                models.Business,
-            ]
-    ) -> None:
+    def update_balance(self) -> None:
         """ Updated player balance after work or street action
-        :param action: work or street action
-        :param mode: increment or decrement
         :return:
         """
         mode = "increment"
-        if hasattr(action, "price"):
-            amount = -action.price
+        if hasattr(self.object_model, "price"):
+            amount = -self.object_model.price
             mode = "decrement"
         else:
             amount = self._get_random_value(
-                min_value=action.income_min,
-                max_value=action.income_max
+                min_value=self.object_model.income_min,
+                max_value=self.object_model.income_max
             )
         for balance in self.player.balances:
-            if balance.currency.id == action.currency_id:
+            if balance.currency.id == self.object_model.currency_id:
                 if mode == "decrement":
-                    self._check_balance(balance=balance, purchased_object=action)
+                    self._check_balance(balance=balance, purchased_object=self.object_model)
                 balance.amount += amount
                 self.session.add(balance)
 
@@ -168,14 +192,8 @@ class Game:
             )
             raise exceptions.NoMoneyError("You do not have enough money to make this purchase")
 
-    def _check_object_in_player(
-            self,
-            object_model: Union[
-                models.Transport, models.Home, models.Skill, models.Business
-            ]
-    ) -> None:
+    def _check_object_in_player(self) -> None:
         """ Checks if the player has an object
-        :param object_model:
         :return:
         """
         player_list_map = {
@@ -185,29 +203,33 @@ class Game:
             "Business": self.player.business_list,
         }
 
-        object_name = object_model.__class__.__name__
+        object_name = self.object_model.__class__.__name__
         player_list = player_list_map.get(object_name)
-        if object_model in player_list:
+        if self.object_model in player_list:
             logger.warning(
-                f"{self.user.email} {object_name} {object_model} (id - {object_model.id}) already exists"
+                f"{self.user.email} {object_name} {self.object_model} already exists"
             )
             raise exceptions.AlreadyExistError(f"{object_name} already exists")
 
-    def _get_authority_benefit(self, action):
+    def _get_authority_benefit(self):
         """ Check authority_benefit fields and get random value
-        :param action:
         :return:
         """
         authority_benefit = None
-        if hasattr(action, "authority_benefit_min") and hasattr(action, "authority_benefit_max"):
+        if hasattr(self.object_model, "authority_benefit_min") and hasattr(self.object_model, "authority_benefit_max"):
             authority_benefit = self._get_random_value(
-                min_value=action.authority_benefit_min,
-                max_value=action.authority_benefit_max
+                min_value=self.object_model.authority_benefit_min,
+                max_value=self.object_model.authority_benefit_max
             )
         return authority_benefit
 
     @staticmethod
     def _get_random_value(min_value: int, max_value: int) -> int:
+        """ Random(min, max)
+        :param min_value:
+        :param max_value:
+        :return:
+        """
         return random.randint(min_value, max_value)
 
     async def _get_by_id(
@@ -248,6 +270,9 @@ class Player(Game):
         self.repository = repository_entity.PlayerEntity(session=session)
 
     async def add_player(self) -> None:
+        """ Add new player for user
+        :return:
+        """
         self.default_player_data["user_id"] = self.user.id
         player_id = await self.repository.create(
             data=self.default_player_data
@@ -257,6 +282,9 @@ class Player(Game):
         )
 
     async def get_info(self) -> models.Player | None:
+        """ Get player info
+        :return:
+        """
         return self.get_player()
 
 
@@ -267,10 +295,18 @@ class Home(Game):
 
     @Game.get_current_player
     async def buy(self, home_id: int) -> None:
+        """ Buy home
+        :param home_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy home id {home_id}")
-        home: models.Home | None = await self._get_by_id(object_id=home_id)
+        self.object_model: models.Home | None = await self._get_by_id(object_id=home_id)
+        await self.buy_item()
 
     async def get_home_list(self) -> List[models.Home]:
+        """ Home list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -281,11 +317,19 @@ class Skill(Game):
 
     @Game.get_current_player
     async def buy(self, skill_id: int) -> None:
+        """ Buy skill
+        :param skill_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy skill id {skill_id}")
-        skill: models.Skill | None = await self._get_by_id(object_id=skill_id)
+        self.object_model: models.Skill | None = await self._get_by_id(object_id=skill_id)
+        await self.buy_item()
 
     async def get_skill_list(self) -> List[models.Skill]:
-        return await self.repository.get_skill_list()
+        """ Skill list
+        :return:
+        """
+        return await self.repository.get_objects_list()
 
 
 class Transport(Game):
@@ -295,19 +339,18 @@ class Transport(Game):
 
     @Game.get_current_player
     async def buy(self, transport_id: int) -> None:
+        """ Buy transport
+        :param transport_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy transport id {transport_id}")
-        transport: models.Transport | None = await self._get_by_id(object_id=transport_id)
-
-        if not transport:
-            raise exceptions.NotFoundException(f"Transport {transport_id} is not found")
-
-        self._check_object_in_player(object_model=transport)
-        self.update_balance(action=transport)
-        self.player.transport_list.append(transport)
-        self.next_day()
-        await self.session.commit()
+        self.object_model: models.Transport | None = await self._get_by_id(object_id=transport_id)
+        await self.buy_item()
 
     async def get_transport_list(self) -> List[models.Transport]:
+        """ Transport list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -318,18 +361,18 @@ class StreetAction(Game):
 
     @Game.get_current_player
     async def run(self, action_id: int) -> None:
+        """ Perform street action
+        :param action_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Perform street action id {action_id}")
-        action: models.StreetAction | None = await self._get_by_id(object_id=action_id)
-
-        if not action:
-            raise exceptions.NotFoundException(f"Action {action_id} is not found")
-
-        self.set_player_harm(harm_action=action)
-        self.update_balance(action=action)
-        self.next_day()
-        await self.session.commit()
+        self.object_model: models.StreetAction | None = await self._get_by_id(object_id=action_id)
+        await self.perform_action()
 
     async def get_street_action_list(self) -> List[models.StreetAction]:
+        """ StreetAction list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -340,18 +383,18 @@ class Work(Game):
 
     @Game.get_current_player
     async def run(self, work_id: int) -> None:
+        """ Perform work action
+        :param work_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Perform work id {work_id}")
-        work: models.Work | None = await self._get_by_id(object_id=work_id)
-
-        if not work:
-            raise exceptions.NotFoundException(f"Work is not found")
-
-        self.set_player_harm(harm_action=work)
-        self.update_balance(action=work)
-        self.next_day()
-        await self.session.commit()
+        self.object_model: models.Work | None = await self._get_by_id(object_id=work_id)
+        await self.perform_action()
 
     async def get_work_list(self) -> List[models.Work]:
+        """ Work list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -362,18 +405,18 @@ class Food(Game):
 
     @Game.get_current_player
     async def buy(self, food_id: int) -> None:
+        """ Buy food
+        :param food_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy food id {food_id}")
-        food: models.Food | None = await self._get_by_id(object_id=food_id)
-
-        if not food:
-            raise exceptions.NotFoundException(f"Food is not found")
-
-        self.set_player_benefit(benefit_action=food)
-        self.update_balance(action=food)
-        self.next_day()
-        await self.session.commit()
+        self.object_model: models.Food | None = await self._get_by_id(object_id=food_id)
+        await self.buy_service()
 
     async def get_food_list(self) -> List[models.Food]:
+        """ Food list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -384,18 +427,18 @@ class Health(Game):
 
     @Game.get_current_player
     async def buy(self, health_id: int) -> None:
+        """ Buy health
+        :param health_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy health id {health_id}")
-        health: models.Health | None = await self._get_by_id(object_id=health_id)
-
-        if not health:
-            raise exceptions.NotFoundException(f"Health is not found")
-
-        self.set_player_benefit(benefit_action=health)
-        self.update_balance(action=health)
-        self.next_day()
-        await self.session.commit()
+        self.object_model: models.Health | None = await self._get_by_id(object_id=health_id)
+        await self.buy_service()
 
     async def get_health_list(self) -> List[models.Health]:
+        """ Health list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -406,18 +449,18 @@ class Leisure(Game):
 
     @Game.get_current_player
     async def buy(self, leisure_id) -> None:
+        """ Buy leisure
+        :param leisure_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy leisure id {leisure_id}")
-        leisure: models.Leisure | None = await self._get_by_id(object_id=leisure_id)
-
-        if not leisure:
-            raise exceptions.NotFoundException(f"Leisure is not found")
-
-        self.set_player_benefit(benefit_action=leisure)
-        self.update_balance(action=leisure)
-        self.next_day()
-        await self.session.commit()
+        self.object_model: models.Leisure | None = await self._get_by_id(object_id=leisure_id)
+        await self.buy_service()
 
     async def get_leisure_list(self) -> List[models.Leisure]:
+        """ Leisure list
+        :return:
+        """
         return await self.repository.get_objects_list()
 
 
@@ -428,8 +471,16 @@ class Business(Game):
 
     @Game.get_current_player
     async def buy(self, business_id) -> None:
+        """ Buy business
+        :param business_id:
+        :return:
+        """
         logger.debug(f"{self.user.email} Buy business id {business_id}")
-        business: models.Business | None = await self._get_by_id(object_id=business_id)
+        self.object_model: models.Business | None = await self._get_by_id(object_id=business_id)
+        await self.buy_item()
 
     async def get_business_list(self) -> List[models.Business]:
+        """ Business list
+        :return:
+        """
         return await self.repository.get_objects_list()
