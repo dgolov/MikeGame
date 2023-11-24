@@ -152,7 +152,7 @@ class Game:
         :return:
         """
         mode = "increment"
-        if hasattr(self.object_model, "price"):
+        if hasattr(self.object_model, "price") and self.object_model.price:
             amount = -self.object_model.price
             mode = "decrement"
         else:
@@ -412,6 +412,7 @@ class Food(Game):
         """
         logger.debug(f"{self.user.email} Buy food id {food_id}")
         self.object_model: models.Food | None = await self._get_by_id(object_id=food_id)
+
         await self.buy_service()
 
     async def get_food_list(self) -> List[models.Food]:
