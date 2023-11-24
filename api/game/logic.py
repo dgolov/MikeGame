@@ -125,10 +125,13 @@ class Game:
     ) -> None:
         """ Updated player balance after work or street action
         :param action: work or street action
+        :param mode: increment or decrement
         :return:
         """
+        mode = "increment"
         if hasattr(action, "price"):
             amount = -action.price
+            mode = "decrement"
         else:
             amount = self._get_random_value(
                 min_value=action.income_min,
@@ -136,6 +139,8 @@ class Game:
             )
         for balance in self.player.balances:
             if balance.currency.id == action.currency_id:
+                if mode == "decrement":
+                    self._check_balance(balance=balance, purchased_object=action)
                 balance.amount += amount
                 self.session.add(balance)
 
@@ -275,16 +280,10 @@ class Transport(Game):
             )
             return
 
-        for balance in self.player.balances:
-            if balance.currency_id == transport.currency_id:
-                self._check_balance(balance=balance, purchased_object=transport)
-                self.player.transport_list.append(transport)
-                balance.amount -= transport.price
-                logger.info(
-                    f"Transport {transport} (id - {transport.id}) added to {self.user.email} "
-                    f"transport list (player id - {self.player.id}) successfully"
-                )
-                await self.session.commit()
+        self.update_balance(action=transport)
+        self.player.transport_list.append(transport)
+        self.next_day()
+        await self.session.commit()
 
     async def get_transport_list(self) -> List[models.Transport]:
         return await self.repository.get_objects_list()
