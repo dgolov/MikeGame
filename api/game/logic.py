@@ -36,6 +36,7 @@ class Game:
         self.player.day += 1
         if 365 % self.player.day == 0:
             self.player.age += 1
+        self._check_dead()
         self.session.add(self.player)
 
     def get_player(self) -> models.Player | None:
@@ -253,6 +254,30 @@ class Game:
         :return:
         """
         return await self.repository.get_by_id(object_id=object_id)
+
+    def _check_dead(self) -> None:
+        """ Check if player is dead
+        :return:
+        """
+        dead_mode = False
+        if self.player.hunger <= 0:
+            self.player.hunger = 0
+            dead_mode = True
+        if self.player.rest <= 0:
+            self.player.rest = 0
+            dead_mode = True
+        if self.player.health <= 0:
+            self.player.health = 0
+            dead_mode = True
+
+        if dead_mode:
+            self.player.deadly_days += 1
+        else:
+            if self.player.deadly_days:
+                self.player.deadly_days = 0
+
+        if self.player.deadly_days > 7:
+            self.player.alive = False
 
 
 class Player(Game):
