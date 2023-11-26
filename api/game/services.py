@@ -4,7 +4,7 @@ from game import exceptions, schemas, logic
 from typing import Union
 
 
-async def processing_by_item_request(
+async def processing_buy_item_request(
         game_logic: Union[
             logic.Business, logic.Home, logic.Skill, logic.Transport
         ],
@@ -32,7 +32,7 @@ async def processing_by_item_request(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
         )
-    except exceptions.NoMoneyError as e:
+    except (exceptions.NoMoneyError, exceptions.NoPossibilityError) as e:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": str(e)}
@@ -55,7 +55,7 @@ async def processing_buy_services_request(
     :return:
     """
     try:
-        await game_logic.buy(food_id=data.id)
+        await game_logic.buy(data.id)
     except exceptions.NotFoundException as e:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -65,6 +65,11 @@ async def processing_buy_services_request(
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
+        )
+    except exceptions.NoMoneyError as e:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": str(e)}
         )
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -84,7 +89,7 @@ async def processing_action_request(
     :return:
     """
     try:
-        await game_logic.run(action_id=data.id)
+        await game_logic.run(data.id)
     except exceptions.NotFoundException as e:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -94,6 +99,11 @@ async def processing_action_request(
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
+        )
+    except exceptions.NoPossibilityError as e:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": str(e)}
         )
     return JSONResponse(
             status_code=status.HTTP_200_OK,

@@ -79,6 +79,8 @@ class PlayerBase(BaseModel):
     age: int
     authority: int
     day: int
+    alive: bool
+    deadly_days: int
 
     class Config:
         from_attributes = True

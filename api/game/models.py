@@ -1,5 +1,5 @@
 from core.engine import Base
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Table
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 
 
@@ -68,6 +68,8 @@ class Player(Base):
         lazy="selectin",
         join_depth=2
     )
+    alive = Column(Boolean, default=True, nullable=False)
+    deadly_days = Column(Integer, default=0, nullable=False)
 
     def __str__(self):
         return "Mike"
