@@ -89,7 +89,7 @@ async def processing_action_request(
     :return:
     """
     try:
-        await game_logic.run(action_id=data.id)
+        await game_logic.run(data.id)
     except exceptions.NotFoundException as e:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
