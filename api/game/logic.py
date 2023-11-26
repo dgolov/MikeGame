@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from core import repository_entity
 from config import logger
 from game import models, exceptions
@@ -8,7 +9,21 @@ from users.models import User
 import random
 
 
-class Game:
+class BaseGame:
+    @abstractmethod
+    def next_day(self):
+        ...
+
+    @abstractmethod
+    def update_balance(self):
+        ...
+
+    @abstractmethod
+    def check_availability(self):
+        ...
+
+
+class UserMixin:
 
     @staticmethod
     def get_current_player(func):
@@ -21,10 +36,56 @@ class Game:
 
         return wrapper
 
-    def __init__(self, session: AsyncSession, user: User):
-        self.session = session
+    def __init__(self, user: User):
         self.user = user
         self.player = None
+
+    def get_player(self) -> models.Player | None:
+        """ Get item player by current user
+        :return: item player
+        """
+        try:
+            return self.user.players[-1]
+        except IndexError:
+            logger.error(f"Player is not exist for user - {self.user.email}")
+
+    def get_player_items_list(
+            self,
+            items_name: str
+    ) -> List[Union[models.Transport, models.Skill, models.Home]]:
+        if hasattr(self.player, f"{items_name}_list"):
+            return getattr(self.player, f"{items_name}_list")
+        else:
+            return getattr(self.player, f"{items_name}s")
+        
+    def _check_dead(self) -> None:
+        """ Check if player is dead
+        :return:
+        """
+        dead_mode = False
+
+        for attr in ("hunger", "rest", "health"):
+            if getattr(self.player, attr) <= 0:
+                setattr(self.player, attr, 0)
+                dead_mode = True
+            elif getattr(self.player, attr) >= 100:
+                setattr(self.player, attr, 100)
+
+        if dead_mode:
+            self.player.deadly_days += 1
+        else:
+            if self.player.deadly_days:
+                self.player.deadly_days = 0
+
+        if self.player.deadly_days > 7:
+            self.player.alive = False
+
+
+class Game(BaseGame, UserMixin):
+    def __init__(self, session: AsyncSession, user: User):
+        super(Game, self).__init__(user=user)
+        self.session = session
+        self.user = user
         self.repository = None
         self.object_model = None
 
@@ -37,118 +98,6 @@ class Game:
         if 365 % self.player.day == 0:
             self.player.age += 1
         self._check_dead()
-        self.session.add(self.player)
-
-    def get_player(self) -> models.Player | None:
-        """ Get item player by current user
-        :return:
-        """
-        try:
-            return self.user.players[-1]
-        except IndexError:
-            logger.error(f"Player is not exist for user - {self.user.email}")
-
-    async def buy_item(self) -> None:
-        """ Buy item (Transport, Home, Business, Skill)
-        :return:
-        """
-        if not self.object_model:
-            raise exceptions.NotFoundException(
-                f"{self.object_model.__class__.__name__} {self.object_model} is not found"
-            )
-        self._check_object_in_player()
-        self.update_balance()
-        self.player.transport_list.append(self.object_model)
-        self.next_day()
-        await self.session.commit()
-
-    async def buy_service(self) -> None:
-        """ Buy service (Health, Food, Leisure)
-        :return:
-        """
-        if not self.object_model:
-            raise exceptions.NotFoundException(
-                f"{self.object_model.__class__.__name__} is not found"
-            )
-        self.set_player_benefit()
-        self.update_balance()
-        self.next_day()
-        await self.session.commit()
-
-    async def perform_action(self) -> None:
-        """ Perform action (Work, Street action)
-        :return:
-        """
-        if not self.object_model:
-            raise exceptions.NotFoundException(
-                f"{self.object_model.__class__.__name__} is not found"
-            )
-
-        self.check_availability()
-        self.set_player_harm()
-        self.update_balance()
-        self.next_day()
-
-        await self.session.commit()
-
-    def set_player_harm(self) -> None:
-        """ Set harm for player
-        :return:
-        """
-        hunger_harm: int = self._get_random_value(
-            min_value=self.object_model.hunger_harm_min,
-            max_value=self.object_model.hunger_harm_max
-        )
-        rest_harm: int = self._get_random_value(
-            min_value=self.object_model.rest_harm_min,
-            max_value=self.object_model.rest_harm_max
-        )
-        health_harm: int = self._get_random_value(
-            min_value=self.object_model.health_harm_min,
-            max_value=self.object_model.health_harm_max
-        )
-
-        authority_benefit: int = self._get_authority_benefit()
-
-        if hunger_harm:
-            self.player.hunger -= hunger_harm
-        if rest_harm:
-            self.player.rest -= rest_harm
-        if health_harm:
-            self.player.health -= health_harm
-        if authority_benefit:
-            self.player.authority += authority_benefit
-
-        self.session.add(self.player)
-
-    def set_player_benefit(self) -> None:
-        """ Set benefit for player
-        :return:
-        """
-        hunger_benefit: int = self._get_random_value(
-            min_value=self.object_model.hunger_benefit_min,
-            max_value=self.object_model.hunger_benefit_max
-        )
-        rest_benefit: int = self._get_random_value(
-            min_value=self.object_model.rest_benefit_min,
-            max_value=self.object_model.rest_benefit_max
-        )
-        health_benefit: int = self._get_random_value(
-            min_value=self.object_model.health_benefit_min,
-            max_value=self.object_model.health_benefit_max
-        )
-
-        authority_benefit: int = self._get_authority_benefit()
-
-        if hunger_benefit:
-            self.player.hunger += hunger_benefit
-        if rest_benefit:
-            self.player.rest += rest_benefit
-        if health_benefit:
-            self.player.health += health_benefit
-        if authority_benefit:
-            self.player.authority += authority_benefit
-
         self.session.add(self.player)
 
     def update_balance(self) -> None:
@@ -183,6 +132,9 @@ class Game:
                     f"You do not have suitable {possibility} - {getattr(self.object_model, possibility)}"
                 )
 
+    def get_player_items_list(self, items_name):
+        return super(Game, self).get_player_items_list(items_name=items_name)
+    
     def _check_availability(self, possibility_str: str) -> bool:
         """ Checking item availability
         :param possibility_str:
@@ -192,11 +144,7 @@ class Game:
             return True
 
         possibility = getattr(self.object_model, possibility_str)
-
-        if hasattr(self.player, f"{possibility_str}_list"):
-            player_possibility_list = getattr(self.player, f"{possibility_str}_list")
-        else:
-            player_possibility_list = getattr(self.player, f"{possibility_str}s")
+        player_possibility_list = self.get_player_items_list(items_name=possibility_str)
 
         if possibility and possibility in player_possibility_list:
             return True
@@ -229,25 +177,6 @@ class Game:
                 f"to purchase {purchased_object} (id - {purchased_object.id})"
             )
             raise exceptions.NoMoneyError("You do not have enough money to make this purchase")
-
-    def _check_object_in_player(self) -> None:
-        """ Checks if the player has an object
-        :return:
-        """
-        player_list_map = {
-            "Transport": self.player.transport_list,
-            "Home": self.player.home_list,
-            "Skill": self.player.skills,
-            "Business": self.player.business_list,
-        }
-
-        object_name = self.object_model.__class__.__name__
-        player_list = player_list_map.get(object_name, None)
-        if self.object_model in player_list:
-            logger.warning(
-                f"{self.user.email} {object_name} {self.object_model} already exists"
-            )
-            raise exceptions.AlreadyExistError(f"{object_name} already exists")
 
     def _get_authority_benefit(self) -> int | None:
         """ Check authority_benefit fields and get random value
@@ -294,27 +223,136 @@ class Game:
         """
         return await self.repository.get_by_id(object_id=object_id)
 
-    def _check_dead(self) -> None:
-        """ Check if player is dead
+
+class ItemGame(Game):
+    async def buy_item(self) -> None:
+        """ Buy item (Transport, Home, Business, Skill)
         :return:
         """
-        dead_mode = False
+        if not self.object_model:
+            raise exceptions.NotFoundException(
+                f"{self.object_model.__class__.__name__} {self.object_model} is not found"
+            )
+        self._check_object_in_player()
+        self.update_balance()
 
-        for attr in ("hunger", "rest", "health"):
-            if getattr(self.player, attr) <= 0:
-                setattr(self.player, attr, 0)
-                dead_mode = True
-            elif getattr(self.player, attr) >= 100:
-                setattr(self.player, attr, 100)
+        object_name = str(self.object_model.__class__.__name__).lower()
+        item_list = self.get_player_items_list(items_name=object_name)
 
-        if dead_mode:
-            self.player.deadly_days += 1
-        else:
-            if self.player.deadly_days:
-                self.player.deadly_days = 0
+        item_list.append(self.object_model)
+        self.next_day()
+        await self.session.commit()
 
-        if self.player.deadly_days > 7:
-            self.player.alive = False
+    def _check_object_in_player(self) -> None:
+        """ Checks if the player has an object
+        :return:
+        """
+        player_list_map = {
+            "Transport": self.player.transport_list,
+            "Home": self.player.home_list,
+            "Skill": self.player.skills,
+            "Business": self.player.business_list,
+        }
+
+        object_name = self.object_model.__class__.__name__
+        player_list = player_list_map.get(object_name, None)
+        if self.object_model in player_list:
+            logger.warning(
+                f"{self.user.email} {object_name} {self.object_model} already exists"
+            )
+            raise exceptions.AlreadyExistError(f"{object_name} already exists")
+
+
+class ServicesGame(Game):
+    async def buy_service(self) -> None:
+        """ Buy service (Health, Food, Leisure)
+        :return:
+        """
+        if not self.object_model:
+            raise exceptions.NotFoundException(
+                f"{self.object_model.__class__.__name__} is not found"
+            )
+        self._set_player_benefit()
+        self.update_balance()
+        self.next_day()
+        await self.session.commit()
+
+    def _set_player_benefit(self) -> None:
+        """ Set benefit for player
+        :return:
+        """
+        hunger_benefit: int = self._get_random_value(
+            min_value=self.object_model.hunger_benefit_min,
+            max_value=self.object_model.hunger_benefit_max
+        )
+        rest_benefit: int = self._get_random_value(
+            min_value=self.object_model.rest_benefit_min,
+            max_value=self.object_model.rest_benefit_max
+        )
+        health_benefit: int = self._get_random_value(
+            min_value=self.object_model.health_benefit_min,
+            max_value=self.object_model.health_benefit_max
+        )
+
+        authority_benefit: int = self._get_authority_benefit()
+
+        if hunger_benefit:
+            self.player.hunger += hunger_benefit
+        if rest_benefit:
+            self.player.rest += rest_benefit
+        if health_benefit:
+            self.player.health += health_benefit
+        if authority_benefit:
+            self.player.authority += authority_benefit
+
+        self.session.add(self.player)
+
+
+class ActionGame(Game):
+    async def perform_action(self) -> None:
+        """ Perform action (Work, Street action)
+        :return:
+        """
+        if not self.object_model:
+            raise exceptions.NotFoundException(
+                f"{self.object_model.__class__.__name__} is not found"
+            )
+
+        self.check_availability()
+        self.set_player_harm()
+        self.update_balance()
+        self.next_day()
+        await self.session.commit()
+
+    def set_player_harm(self) -> None:
+        """ Set harm for player
+        :return:
+        """
+        hunger_harm: int = self._get_random_value(
+            min_value=self.object_model.hunger_harm_min,
+            max_value=self.object_model.hunger_harm_max
+        )
+        rest_harm: int = self._get_random_value(
+            min_value=self.object_model.rest_harm_min,
+            max_value=self.object_model.rest_harm_max
+        )
+        health_harm: int = self._get_random_value(
+            min_value=self.object_model.health_harm_min,
+            max_value=self.object_model.health_harm_max
+        )
+
+        authority_benefit: int = self._get_authority_benefit()
+
+        if hunger_harm:
+            self.player.hunger -= hunger_harm
+        if rest_harm:
+            self.player.rest -= rest_harm
+        if health_harm:
+            self.player.health -= health_harm
+        if authority_benefit:
+            self.player.authority += authority_benefit
+
+        self.session.add(self.player)
 
 
 class Player(Game):
@@ -351,7 +389,7 @@ class Player(Game):
         return self.get_player()
 
 
-class Home(Game):
+class Home(ItemGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Home, self).__init__(session, user)
         self.repository = repository_entity.HomeEntity(session=session)
@@ -373,7 +411,7 @@ class Home(Game):
         return await self.repository.get_objects_list()
 
 
-class Skill(Game):
+class Skill(ItemGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Skill, self).__init__(session, user)
         self.repository = repository_entity.SkillEntity(session=session)
@@ -395,7 +433,7 @@ class Skill(Game):
         return await self.repository.get_objects_list()
 
 
-class Transport(Game):
+class Transport(ItemGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Transport, self).__init__(session, user)
         self.repository = repository_entity.TransportEntity(session=session)
@@ -417,7 +455,7 @@ class Transport(Game):
         return await self.repository.get_objects_list()
 
 
-class StreetAction(Game):
+class StreetAction(ActionGame):
     def __init__(self, session: AsyncSession, user: User):
         super(StreetAction, self).__init__(session, user)
         self.repository = repository_entity.StreetActionEntity(session=session)
@@ -439,7 +477,7 @@ class StreetAction(Game):
         return await self.repository.get_objects_list()
 
 
-class Work(Game):
+class Work(ActionGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Work, self).__init__(session, user)
         self.repository = repository_entity.WorkEntity(session=session)
@@ -461,7 +499,7 @@ class Work(Game):
         return await self.repository.get_objects_list()
 
 
-class Food(Game):
+class Food(ServicesGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Food, self).__init__(session, user)
         self.repository = repository_entity.FoodEntity(session=session)
@@ -484,7 +522,7 @@ class Food(Game):
         return await self.repository.get_objects_list()
 
 
-class Health(Game):
+class Health(ServicesGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Health, self).__init__(session, user)
         self.repository = repository_entity.HealthEntity(session=session)
@@ -506,7 +544,7 @@ class Health(Game):
         return await self.repository.get_objects_list()
 
 
-class Leisure(Game):
+class Leisure(ServicesGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Leisure, self).__init__(session, user)
         self.repository = repository_entity.LeisureEntity(session=session)
@@ -528,7 +566,7 @@ class Leisure(Game):
         return await self.repository.get_objects_list()
 
 
-class Business(Game):
+class Business(ItemGame):
     def __init__(self, session: AsyncSession, user: User):
         super(Business, self).__init__(session, user)
         self.repository = repository_entity.BusinessEntity(session=session)
