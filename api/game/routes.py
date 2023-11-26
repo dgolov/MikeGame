@@ -161,7 +161,7 @@ async def perform_street_action(
     """ Perform street action by player id endpoint
     """
     street_logic = logic.StreetAction(session=session, user=user)
-    await services.processing_action_request(game_logic=street_logic, data=data)
+    return await services.processing_action_request(game_logic=street_logic, data=data)
 
 
 @router.get("/work", response_model=List[schemas.WorkSchema])
