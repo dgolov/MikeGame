@@ -535,6 +535,8 @@ class Business(Game):
         logger.debug(f"{self.user.email} Buy business id {business_id}")
         self.object_model: models.Business | None = await self._get_by_id(object_id=business_id)
         self.check_possibility()
+        if self.object_model.min_authority > self.player.authority:
+            raise exceptions.NoPossibilityError(f"You do not have suitable authority")
         await self.buy_item()
 
     async def get_business_list(self) -> List[models.Business]:

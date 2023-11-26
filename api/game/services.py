@@ -32,7 +32,7 @@ async def processing_buy_item_request(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
         )
-    except exceptions.NoMoneyError as e:
+    except (exceptions.NoMoneyError, exceptions.NoPossibilityError) as e:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": str(e)}
@@ -99,6 +99,11 @@ async def processing_action_request(
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
+        )
+    except exceptions.NoPossibilityError as e:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": str(e)}
         )
     return JSONResponse(
             status_code=status.HTTP_200_OK,
