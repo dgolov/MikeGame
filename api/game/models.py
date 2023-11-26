@@ -80,6 +80,11 @@ class Currency(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    exchange_price_min = Column(Integer)
+    exchange_price_max = Column(Integer)
+    exchange_change_step = Column(Integer)
+    exchange_currency_id = Column(Integer, ForeignKey('currency.id'))
+    exchange_currency = relationship("Currency", lazy="selectin", join_depth=2)
 
     def __str__(self):
         return self.name
@@ -96,6 +101,7 @@ class Balance(Base):
     player = relationship("Player", lazy="selectin")
     amount = Column(Integer, nullable=False)
     updated_at = Column(DateTime)
+    exchange_price = Column(Integer)
 
     def __str__(self):
         return self.name
