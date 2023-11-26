@@ -134,6 +134,9 @@ class Game(BaseGame, UserMixin):
 
     def get_player_items_list(self, items_name):
         return super(Game, self).get_player_items_list(items_name=items_name)
+
+    def _check_dead(self):
+        super(Game, self)._check_dead()
     
     def _check_availability(self, possibility_str: str) -> bool:
         """ Checking item availability
