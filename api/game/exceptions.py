@@ -16,3 +16,7 @@ class NoMoneyError(Exception):
 
 class AlreadyExistError(Exception):
     ...
+
+
+class NoPossibilityError(Exception):
+    ...
