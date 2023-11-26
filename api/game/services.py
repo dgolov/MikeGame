@@ -4,7 +4,7 @@ from game import exceptions, schemas, logic
 from typing import Union
 
 
-async def processing_by_item_request(
+async def processing_buy_item_request(
         game_logic: Union[
             logic.Business, logic.Home, logic.Skill, logic.Transport
         ],

@@ -83,7 +83,7 @@ async def learn_skill(
     """ Learn skill endpoint by player id
     """
     skill_logic = logic.Skill(session=session, user=user)
-    return await services.processing_by_item_request(game_logic=skill_logic, data=data)
+    return await services.processing_buy_item_request(game_logic=skill_logic, data=data)
 
 
 @router.get("/homes", response_model=List[schemas.HomeSchema])
@@ -109,7 +109,7 @@ async def buy_home(
     """ Buy home by player id endpoint
     """
     home_logic = logic.Home(session=session, user=user)
-    return await services.processing_by_item_request(game_logic=home_logic, data=data)
+    return await services.processing_buy_item_request(game_logic=home_logic, data=data)
 
 
 @router.get("/transport", response_model=List[schemas.TransportSchema])
@@ -135,7 +135,7 @@ async def buy_transport(
     """ Buy transport by player id endpoint
     """
     transport_logic = logic.Transport(session=session, user=user)
-    return await services.processing_by_item_request(game_logic=transport_logic, data=data)
+    return await services.processing_buy_item_request(game_logic=transport_logic, data=data)
 
 
 @router.get("/street", response_model=List[schemas.StreetActionSchema])
@@ -291,4 +291,4 @@ async def buy_business(
     """ Buy business by player id endpoint
     """
     business_logic = logic.Business(session=session, user=user)
-    return await services.processing_by_item_request(game_logic=business_logic, data=data)
+    return await services.processing_buy_item_request(game_logic=business_logic, data=data)
