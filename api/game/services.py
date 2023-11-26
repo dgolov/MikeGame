@@ -55,7 +55,7 @@ async def processing_buy_services_request(
     :return:
     """
     try:
-        await game_logic.buy(food_id=data.id)
+        await game_logic.buy(data.id)
     except exceptions.NotFoundException as e:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -65,6 +65,11 @@ async def processing_buy_services_request(
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"message": "Player not found"}
+        )
+    except exceptions.NoMoneyError as e:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": str(e)}
         )
     return JSONResponse(
         status_code=status.HTTP_200_OK,
