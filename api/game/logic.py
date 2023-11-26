@@ -83,10 +83,12 @@ class Game:
             raise exceptions.NotFoundException(
                 f"{self.object_model.__class__.__name__} is not found"
             )
-        self.check_possibility()
+
+        self.check_availability()
         self.set_player_harm()
         self.update_balance()
         self.next_day()
+
         await self.session.commit()
 
     def set_player_harm(self) -> None:
@@ -169,16 +171,23 @@ class Game:
                 balance.amount += amount
                 self.session.add(balance)
 
-    def check_possibility(self):
+    def check_availability(self) -> None:
+        """ Checking the player's transport, home or skill availability
+        :return:
+        """
         possibility_list = ("transport", "home", "skill")
 
         for possibility in possibility_list:
-            if not self._check_possibility(possibility_str=possibility):
+            if not self._check_availability(possibility_str=possibility):
                 raise exceptions.NoPossibilityError(
                     f"You do not have suitable {possibility} - {getattr(self.object_model, possibility)}"
                 )
 
-    def _check_possibility(self, possibility_str: str):
+    def _check_availability(self, possibility_str: str) -> bool:
+        """ Checking item availability
+        :param possibility_str:
+        :return:
+        """
         if not hasattr(self.object_model, possibility_str):
             return True
 
@@ -534,7 +543,7 @@ class Business(Game):
         """
         logger.debug(f"{self.user.email} Buy business id {business_id}")
         self.object_model: models.Business | None = await self._get_by_id(object_id=business_id)
-        self.check_possibility()
+        self.check_availability()
         if self.object_model.min_authority > self.player.authority:
             raise exceptions.NoPossibilityError(f"You do not have suitable authority")
         await self.buy_item()
