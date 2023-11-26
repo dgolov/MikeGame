@@ -299,15 +299,13 @@ class Game:
         :return:
         """
         dead_mode = False
-        if self.player.hunger <= 0:
-            self.player.hunger = 0
-            dead_mode = True
-        if self.player.rest <= 0:
-            self.player.rest = 0
-            dead_mode = True
-        if self.player.health <= 0:
-            self.player.health = 0
-            dead_mode = True
+
+        for attr in ("hunger", "rest", "health"):
+            if getattr(self.player, attr) <= 0:
+                setattr(self.player, attr, 0)
+                dead_mode = True
+            elif getattr(self.player, attr) >= 100:
+                setattr(self.player, attr, 100)
 
         if dead_mode:
             self.player.deadly_days += 1
