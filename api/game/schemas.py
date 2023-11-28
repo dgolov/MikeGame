@@ -21,6 +21,13 @@ class HarmSchemaMixin:
     health_harm_max: int
 
 
+class BuySchemaMixin:
+    name: str
+    description: str | None
+    price: int
+    currency_id: int | None
+
+
 class CurrencyBase(BaseModel):
     name: str
 
@@ -72,29 +79,15 @@ class PlayerBase(BaseModel):
     age: int
     authority: int
     day: int
+    alive: bool
+    deadly_days: int
 
     class Config:
         from_attributes = True
 
 
-class PlayerSchema(PlayerBase):
-    user_id: int
-    id: int
-    balances: List[BalanceSchema]
-
-
-class CreatePlayer(PlayerBase):
-    user_id: int
-
-
-class UpdatePlayer(PlayerBase):
-    pass
-
-
-class HomeBase(BaseModel):
-    name: str
-    description: str | None
-    price: int
+class HomeBase(BaseModel, BuySchemaMixin):
+    ...
 
     class Config:
         from_attributes = True
@@ -112,10 +105,8 @@ class UpdateHome(HomeBase):
     pass
 
 
-class SkillBase(BaseModel):
-    name: str
-    price: int
-    description: str | None
+class SkillBase(BaseModel, BuySchemaMixin):
+    ...
 
     class Config:
         from_attributes = True
@@ -133,11 +124,8 @@ class UpdateSkill(SkillBase):
     pass
 
 
-class TransportBase(BaseModel):
-    name: str
-    description: str | None
-    price: int
-    skill_id: int
+class TransportBase(BaseModel, BuySchemaMixin):
+    skill_id: int | None
 
     class Config:
         from_attributes = True
@@ -167,7 +155,8 @@ class ActionBaseSchema:
 
 
 class StreetActionBase(BaseModel, ActionBaseSchema, HarmSchemaMixin):
-    pass
+    authority_benefit_min: int | None
+    authority_benefit_max: int | None
 
     class Config:
         from_attributes = True
@@ -185,7 +174,7 @@ class UpdateStreetAction(StreetActionBase):
     pass
 
 
-class PerformStreetActionSchema(BaseModel):
+class PerformActionSchema(BaseModel):
     id: int
 
 
@@ -216,6 +205,8 @@ class FoodBase(BaseModel, BenefitSchemaMixin):
     name: str
     description: str | None
     price: int
+    income_min: int | None
+    income_max: int | None
 
     class Config:
         from_attributes = True
@@ -237,6 +228,8 @@ class HealthBase(BaseModel, BenefitSchemaMixin):
     name: str
     description: str | None
     price: int
+    income_min: int | None
+    income_max: int | None
 
     class Config:
         from_attributes = True
@@ -259,6 +252,8 @@ class LeisureBase(BaseModel, BenefitSchemaMixin):
     description: str | None
     price: int
     skill_id: int
+    authority_benefit_min: int | None
+    authority_benefit_max: int | None
 
     class Config:
         from_attributes = True
@@ -301,4 +296,22 @@ class CreateBusiness(BusinessBase):
 
 
 class UpdateBusiness(BusinessBase):
+    pass
+
+
+class PlayerSchema(PlayerBase):
+    user_id: int
+    id: int
+    balances: List[BalanceSchema]
+    home_list: List[HomeSchema]
+    skills: List[SkillSchema]
+    transport_list: List[TransportSchema]
+    business_list: List[BusinessSchema]
+
+
+class CreatePlayer(PlayerBase):
+    user_id: int
+
+
+class UpdatePlayer(PlayerBase):
     pass

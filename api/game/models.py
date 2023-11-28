@@ -1,5 +1,5 @@
 from core.engine import Base
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Table
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 
 
@@ -68,6 +68,8 @@ class Player(Base):
         lazy="selectin",
         join_depth=2
     )
+    alive = Column(Boolean, default=True, nullable=False)
+    deadly_days = Column(Integer, default=0, nullable=False)
 
     def __str__(self):
         return "Mike"
@@ -78,6 +80,11 @@ class Currency(Base):
 
     id = Column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
+    exchange_price_min = Column(Integer)
+    exchange_price_max = Column(Integer)
+    exchange_change_step = Column(Integer)
+    exchange_currency_id = Column(Integer, ForeignKey('currency.id'))
+    exchange_currency = relationship("Currency", lazy="selectin", join_depth=2)
 
     def __str__(self):
         return self.name
@@ -94,6 +101,7 @@ class Balance(Base):
     player = relationship("Player", lazy="selectin")
     amount = Column(Integer, nullable=False)
     updated_at = Column(DateTime)
+    exchange_price = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -106,6 +114,8 @@ class Home(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -118,6 +128,8 @@ class Skill(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -132,6 +144,8 @@ class Transport(Base):
     price = Column(Integer, nullable=False)
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
+    currency_id = Column(Integer, ForeignKey('currency.id'))
+    currency = relationship("Currency", lazy="selectin")
 
     def __str__(self):
         return self.name
@@ -159,6 +173,8 @@ class StreetAction(Base):
     rest_harm_max = Column(Integer)
     health_harm_min = Column(Integer)
     health_harm_max = Column(Integer)
+    authority_benefit_min = Column(Integer)
+    authority_benefit_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -198,12 +214,16 @@ class Food(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
+    currency = relationship("Currency", lazy="selectin")
     hunger_benefit_min = Column(Integer)
     hunger_benefit_max = Column(Integer)
     rest_benefit_min = Column(Integer)
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    income_min = Column(Integer)
+    income_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -216,12 +236,16 @@ class Health(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
+    currency = relationship("Currency", lazy="selectin")
     hunger_benefit_min = Column(Integer)
     hunger_benefit_max = Column(Integer)
     rest_benefit_min = Column(Integer)
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    income_min = Column(Integer)
+    income_max = Column(Integer)
 
     def __str__(self):
         return self.name
@@ -234,6 +258,8 @@ class Leisure(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(String)
     price = Column(Integer, nullable=False)
+    currency_id = Column(Integer, ForeignKey('currency.id'), nullable=False)
+    currency = relationship("Currency", lazy="selectin")
     skill_id = Column(Integer, ForeignKey('skill.id'))
     skill = relationship("Skill", lazy="selectin")
     hunger_benefit_min = Column(Integer)
@@ -242,6 +268,8 @@ class Leisure(Base):
     rest_benefit_max = Column(Integer)
     health_benefit_min = Column(Integer)
     health_benefit_max = Column(Integer)
+    authority_benefit_min = Column(Integer)
+    authority_benefit_max = Column(Integer)
 
     def __str__(self):
         return self.name
